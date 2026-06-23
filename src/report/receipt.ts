@@ -26,6 +26,7 @@ export interface BuildReceiptInput {
   scenarioId?: string;
   simulatorVersion: string;
   evaluation: EvaluationResult;
+  redact?: boolean;
   snapshots: {
     policy: unknown;
     merchant: unknown;
@@ -36,10 +37,11 @@ export interface BuildReceiptInput {
 }
 
 export function buildReceipt(input: BuildReceiptInput): Receipt {
-  const policy = redactSnapshot(input.snapshots.policy);
-  const merchant = redactSnapshot(input.snapshots.merchant);
-  const quote = redactSnapshot(input.snapshots.quote);
-  const paymentRequest = redactSnapshot(input.snapshots.payment_request);
+  const shouldRedact = input.redact ?? true;
+  const policy = maybeRedact(input.snapshots.policy, shouldRedact);
+  const merchant = maybeRedact(input.snapshots.merchant, shouldRedact);
+  const quote = maybeRedact(input.snapshots.quote, shouldRedact);
+  const paymentRequest = maybeRedact(input.snapshots.payment_request, shouldRedact);
 
   return {
     receipt_id: createId("receipt"),
@@ -69,7 +71,17 @@ function prefixFields(prefix: string, fields: string[]): string[] {
   return fields.map((field) => `${prefix}.${field}`);
 }
 
+function maybeRedact(value: unknown, shouldRedact: boolean) {
+  if (shouldRedact) {
+    return redactSnapshot(value);
+  }
+
+  return {
+    snapshot: value,
+    redactedFields: []
+  };
+}
+
 function createId(prefix: string): string {
   return `${prefix}_${crypto.randomUUID()}`;
 }
-

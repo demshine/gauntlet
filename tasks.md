@@ -21,7 +21,7 @@ Input docs:
 
 - [X] T006 Create Zod schemas for Policy, Merchant, Quote, PaymentRequest, History, Scenario, and Receipt in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/domain/schemas.ts`
 - [X] T007 Create fixture loading utilities for YAML and JSON in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/io/fixtures.ts`
-- [ ] T008 Create filesystem output utilities for receipts and reports in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/io/output.ts`
+- [X] T008 Create filesystem output utilities for receipts and reports in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/io/output.ts`
 - [X] T009 Implement decision precedence helper in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/decision.ts`
 - [X] T010 Implement redaction policy in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/report/redaction.ts`
 - [X] T011 [P] Add unit tests for schema validation in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/domain/schemas.test.ts`
@@ -46,6 +46,8 @@ Independent test criteria: `gauntlet run` executes 8 scenarios and prints a summ
 - [X] T023 [US1] Create built-in scenario registry in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
 - [X] T024 [US1] Implement scenario runner in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/run.ts`
 - [X] T025 [US1] Add scenario runner tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/scenarios/run.test.ts`
+- [X] T025A [US1] Wire `gauntlet run` built-in scenario summary in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli.ts`
+- [X] T025B [US1] Wire `gauntlet run --scenario` scenario selection in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli/run-command.ts`
 
 ## Phase 4: User Story 2 - Evaluate a Custom Payment Request (P1)
 
@@ -67,6 +69,7 @@ Independent test criteria: `gauntlet run --policy --request --history` returns t
 - [X] T037 [US2] Implement evaluation orchestrator in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/evaluate.ts`
 - [ ] T038 [US2] Add rule unit tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/rules.test.ts`
 - [X] T039 [US2] Add custom request integration tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/evaluate.test.ts`
+- [X] T039A [US2] Wire `gauntlet run --policy --quote --request --history` in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli/run-command.ts`
 
 ## Phase 5: User Story 3 - Generate Redacted Receipts and Markdown Reports (P1)
 
@@ -76,9 +79,10 @@ Independent test criteria: receipt and report files include decision, reason cod
 
 - [X] T040 [US3] Implement receipt builder in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/report/receipt.ts`
 - [X] T041 [US3] Implement markdown report builder in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/report/markdown.ts`
-- [ ] T042 [US3] Add receipt writer integration in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/io/output.ts`
+- [X] T042 [US3] Add receipt writer integration in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/io/output.ts`
 - [X] T043 [US3] Add report snapshot tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/report/markdown.test.ts`
 - [X] T044 [US3] Add receipt redaction tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/report/receipt.test.ts`
+- [X] T044A [US3] Wire `--unredacted` receipt generation in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli/run-command.ts`
 
 ## Phase 6: User Story 4 - Use CI Exit Codes (P2)
 
@@ -86,8 +90,8 @@ Goal: CI mode provides stable process exit behavior.
 
 Independent test criteria: each decision maps to the documented exit code, including `--allow-review`.
 
-- [ ] T045 [US4] Implement CI exit-code mapper in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli/exit-codes.ts`
-- [ ] T046 [US4] Wire `--ci` and `--allow-review` into `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli.ts`
+- [X] T045 [US4] Implement CI exit-code mapper in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/decision.ts`
+- [X] T046 [US4] Wire `--ci` and `--allow-review` into `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli.ts`
 - [ ] T047 [US4] Add CLI exit-code tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/cli/exit-codes.test.ts`
 
 ## Phase 7: User Story 5 - Understand and Extend Scenario Fixtures (P2)
@@ -115,10 +119,10 @@ Independent test criteria: example quote, payment request, Gauntlet decision, an
 
 ## Final Phase: Polish and Cross-Cutting
 
-- [ ] T057 Update root README with implemented commands in `/Users/echo/claudesidian/01_Projects/Gauntlet/README.md`
-- [ ] T058 Add generated fixture examples in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/fixtures`
+- [X] T057 Update root README with implemented commands in `/Users/echo/claudesidian/01_Projects/Gauntlet/README.md`
+- [X] T058 Add generated fixture examples through `gauntlet init` in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli/init-command.ts`
 - [ ] T059 Add release checklist in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/release-checklist.md`
-- [ ] T060 Run typecheck, tests, and build from `/Users/echo/claudesidian/01_Projects/Gauntlet`
+- [X] T060 Run typecheck, tests, and build from `/Users/echo/claudesidian/01_Projects/Gauntlet`
 
 ## Dependencies
 

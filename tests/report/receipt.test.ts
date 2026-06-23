@@ -49,5 +49,31 @@ describe("buildReceipt", () => {
     );
     expect(receipt.evaluation_trace).toHaveLength(1);
   });
-});
 
+  it("can build an unredacted receipt when explicitly requested", () => {
+    const receipt = buildReceipt({
+      simulatorVersion: "0.1.0",
+      redact: false,
+      evaluation: {
+        decision: "policy_passed",
+        reason_codes: [],
+        advisory_warnings: [],
+        evaluation_trace: []
+      },
+      snapshots: {
+        policy: {},
+        merchant: {},
+        quote: {},
+        payment_request: {
+          request_id: "req_123",
+          provider_transaction_reference: "txn_secret"
+        }
+      }
+    });
+
+    expect(receipt.payment_request_snapshot).toMatchObject({
+      provider_transaction_reference: "txn_secret"
+    });
+    expect(receipt.redacted_fields).toEqual([]);
+  });
+});

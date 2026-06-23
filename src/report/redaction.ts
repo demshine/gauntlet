@@ -12,7 +12,13 @@ const SENSITIVE_KEYS = new Set([
   "purpose"
 ]);
 
-const SENSITIVE_KEY_PATTERNS = [/api[_-]?key/i, /secret/i, /token/i, /password/i];
+const SENSITIVE_KEY_PATTERNS = [
+  /api[_-]?key/i,
+  /secret/i,
+  /password/i,
+  /access[_-]?token/i,
+  /bearer[_-]?token/i
+];
 
 export function redactSnapshot<T>(value: T): RedactionResult<T> {
   const redactedFields: string[] = [];
@@ -47,4 +53,3 @@ export function redactSnapshot<T>(value: T): RedactionResult<T> {
 function shouldRedact(key: string): boolean {
   return SENSITIVE_KEYS.has(key) || SENSITIVE_KEY_PATTERNS.some((pattern) => pattern.test(key));
 }
-

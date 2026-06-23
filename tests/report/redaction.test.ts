@@ -35,5 +35,17 @@ describe("redactSnapshot", () => {
       ])
     );
   });
-});
 
+  it("does not redact payment token symbols", () => {
+    const result = redactSnapshot({
+      token: "USDC",
+      currency: "USDC"
+    });
+
+    expect(result.snapshot).toEqual({
+      token: "USDC",
+      currency: "USDC"
+    });
+    expect(result.redactedFields).toEqual([]);
+  });
+});
