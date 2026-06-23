@@ -5,7 +5,7 @@
   "description": "A local payment policy test harness for MCP paid tool demos.",
   "type": "module",
   "bin": {
-    "gauntlet": "./dist/cli.js"
+    "gauntlet": "./dist/src/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

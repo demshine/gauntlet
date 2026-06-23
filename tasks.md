@@ -92,7 +92,7 @@ Independent test criteria: each decision maps to the documented exit code, inclu
 
 - [X] T045 [US4] Implement CI exit-code mapper in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/decision.ts`
 - [X] T046 [US4] Wire `--ci` and `--allow-review` into `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli.ts`
-- [ ] T047 [US4] Add CLI exit-code tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/cli/exit-codes.test.ts`
+- [X] T047 [US4] Add CLI exit-code tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/cli/exit-codes.test.ts`
 
 ## Phase 7: User Story 5 - Understand and Extend Scenario Fixtures (P2)
 
@@ -100,10 +100,10 @@ Goal: Contributors can add scenarios without changing engine logic.
 
 Independent test criteria: scenario fixtures validate authoring metadata and expected outcomes.
 
-- [ ] T048 [US5] Create scenario authoring guide in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/scenario-authoring.md`
-- [ ] T049 [US5] Implement scenario fixture validation in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/validate.ts`
-- [ ] T050 [US5] Document backlog scenarios in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/backlog-scenarios.md`
-- [ ] T051 [US5] Add scenario validation tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/scenarios/validate.test.ts`
+- [X] T048 [US5] Create scenario authoring guide in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/scenario-authoring.md`
+- [X] T049 [US5] Implement scenario fixture validation in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/validate.ts`
+- [X] T050 [US5] Document backlog scenarios in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/backlog-scenarios.md`
+- [X] T051 [US5] Add scenario validation tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/scenarios/validate.test.ts`
 
 ## Phase 8: User Story 6 - Run a Mock MCP Paid Tool Flow (P3)
 
@@ -111,17 +111,17 @@ Goal: The example demonstrates where Gauntlet fits in a paid MCP tool flow.
 
 Independent test criteria: example quote, payment request, Gauntlet decision, and receipt are visible from one command.
 
-- [ ] T052 [US6] Create example directory in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool`
-- [ ] T053 [US6] Implement mock quote generation in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool/quote.ts`
-- [ ] T054 [US6] Implement mock payment request generation in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool/payment-request.ts`
-- [ ] T055 [US6] Implement example runner in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool/run.ts`
-- [ ] T056 [US6] Document example flow in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool/README.md`
+- [X] T052 [US6] Create example directory in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool`
+- [X] T053 [US6] Implement mock quote generation in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool/quote.ts`
+- [X] T054 [US6] Implement mock payment request generation in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool/payment-request.ts`
+- [X] T055 [US6] Implement example runner in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool/run.ts`
+- [X] T056 [US6] Document example flow in `/Users/echo/claudesidian/01_Projects/Gauntlet/examples/mcp-paid-tool/README.md`
 
 ## Final Phase: Polish and Cross-Cutting
 
 - [X] T057 Update root README with implemented commands in `/Users/echo/claudesidian/01_Projects/Gauntlet/README.md`
 - [X] T058 Add generated fixture examples through `gauntlet init` in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli/init-command.ts`
-- [ ] T059 Add release checklist in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/release-checklist.md`
+- [X] T059 Add release checklist in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/release-checklist.md`
 - [X] T060 Run typecheck, tests, and build from `/Users/echo/claudesidian/01_Projects/Gauntlet`
 
 ## Dependencies
