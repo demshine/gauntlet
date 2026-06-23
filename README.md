@@ -22,6 +22,9 @@ Gauntlet helps developers test whether an AI agent's simulated payment request s
 - CLI contract: [contracts/cli.md](./specs/001-mcp-paid-tool-test-harness/contracts/cli.md)
 - Quickstart: [quickstart.md](./specs/001-mcp-paid-tool-test-harness/quickstart.md)
 - Tasks: [tasks.md](./tasks.md)
+- External validation plan: [external-validation-plan.md](./docs/external-validation-plan.md)
+- Integration trial: [integration-trial.md](./docs/integration-trial.md)
+- Outreach templates: [outreach-templates.md](./docs/outreach-templates.md)
 
 ## Development
 

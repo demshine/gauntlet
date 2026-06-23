@@ -30,3 +30,11 @@ Use this checklist before declaring V0.1 ready for external validation.
 - [ ] 1 non-friend user proposed a scenario.
 - [ ] 1 team showed willingness to pay for integration support or custom scenarios.
 - [ ] At least 5 of 8 must-have scenarios were rated useful.
+
+## Supporting Docs
+
+- [External validation plan](./external-validation-plan.md)
+- [Interview guide](./interview-guide.md)
+- [Integration trial](./integration-trial.md)
+- [Outreach templates](./outreach-templates.md)
+- [Validation log template](./validation-log-template.md)
