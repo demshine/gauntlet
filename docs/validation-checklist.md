@@ -7,7 +7,7 @@ Use this checklist before declaring V0.1 ready for external validation.
 - [ ] `gauntlet init` creates the documented fixture directory.
 - [ ] `gauntlet run` runs exactly 8 must-have scenarios.
 - [ ] `gauntlet run --scenario amount-drift` runs one scenario.
-- [ ] `gauntlet run --policy --request --history` evaluates a custom request.
+- [ ] `gauntlet run --policy --quote --request --history` evaluates a custom request.
 - [ ] Deterministic decision precedence matches the PRD.
 - [ ] Receipts are redacted by default.
 - [ ] Markdown reports explain high-signal failures.
@@ -30,4 +30,3 @@ Use this checklist before declaring V0.1 ready for external validation.
 - [ ] 1 non-friend user proposed a scenario.
 - [ ] 1 team showed willingness to pay for integration support or custom scenarios.
 - [ ] At least 5 of 8 must-have scenarios were rated useful.
-

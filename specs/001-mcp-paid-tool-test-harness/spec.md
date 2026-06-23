@@ -25,7 +25,7 @@ As a developer integrating Gauntlet into a demo repo, I want to pass my own poli
 
 Independent test criteria:
 
-- `gauntlet run --policy ./policy.yaml --request ./payment_request.json --history ./history.json` evaluates one custom request.
+- `gauntlet run --policy ./policy.yaml --quote ./quote.json --request ./payment_request.json --history ./history.json` evaluates one custom request.
 - Missing required inputs produce `invalid_input`.
 - Deterministic violations produce `policy_failed`.
 - Review threshold produces `requires_review`.
@@ -106,4 +106,3 @@ Independent test criteria:
 - A developer can connect a demo flow in 30 minutes.
 - At least 5 of the 8 must-have scenarios are rated useful by external users.
 - At least 3 external developers complete an integration.
-

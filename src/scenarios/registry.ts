@@ -168,6 +168,14 @@ export const builtInScenarios: ScenarioDefinition[] = [
   })
 ];
 
+export const builtInScenarioAliases: Record<string, string> = {
+  "amount-drift": "amount-drift-above-threshold"
+};
+
+export function resolveBuiltInScenarioId(scenarioId: string): string {
+  return builtInScenarioAliases[scenarioId] ?? scenarioId;
+}
+
 function scenario(input: {
   scenario_id: string;
   title: string;
@@ -189,4 +197,3 @@ function scenario(input: {
     ...input
   };
 }
-

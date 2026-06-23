@@ -73,6 +73,15 @@ const history: History = {
 };
 
 describe("executeRun", () => {
+  it("accepts documented short aliases for built-in scenarios", async () => {
+    const result = await executeRun({ scenario: "amount-drift" });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("Scenarios: 1");
+    expect(result.stdout).toContain("Policy failed: 1");
+    expect(result.stdout).toContain("amount-drift-above-threshold");
+  });
+
   it("evaluates a custom request from local fixtures and writes artifacts", async () => {
     const dir = await mkdtemp(join(tmpdir(), "gauntlet-run-"));
     try {
