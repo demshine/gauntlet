@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import { buildMarkdownReport } from "./report/markdown.js";
+import { runBuiltInScenarios } from "./scenarios/run.js";
 
 const program = new Command();
 
@@ -25,9 +27,21 @@ program
   .option("--ci", "Use CI exit-code behavior")
   .option("--allow-review", "Treat requires_review as exit 0 in CI mode")
   .option("--unredacted", "Generate an unredacted local receipt")
-  .action(() => {
-    console.log("gauntlet run is planned for V0.1.");
+  .action((options: { ci?: boolean; allowReview?: boolean }) => {
+    const summary = runBuiltInScenarios();
+    const report = buildMarkdownReport({
+      title: "Gauntlet run complete",
+      scenarioCount: summary.scenarioCount,
+      decisionCounts: summary.decisionCounts,
+      advisoryWarningCount: summary.advisoryWarningCount,
+      highSignalFailures: summary.highSignalFailures
+    });
+
+    console.log(report);
+
+    if (options.ci && summary.decisionCounts.policy_failed > 0) {
+      process.exitCode = 1;
+    }
   });
 
 program.parse();
-

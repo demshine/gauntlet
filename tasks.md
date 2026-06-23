@@ -11,22 +11,22 @@ Input docs:
 
 ## Phase 1: Setup
 
-- [ ] T001 Install npm dependencies from `/Users/echo/claudesidian/01_Projects/Gauntlet/package.json`
-- [ ] T002 Verify TypeScript config in `/Users/echo/claudesidian/01_Projects/Gauntlet/tsconfig.json`
-- [ ] T003 Verify Vitest config in `/Users/echo/claudesidian/01_Projects/Gauntlet/vitest.config.ts`
-- [ ] T004 [P] Add reason-code constants in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/domain/reason-codes.ts`
-- [ ] T005 [P] Add shared result types in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/domain/results.ts`
+- [X] T001 Install npm dependencies from `/Users/echo/claudesidian/01_Projects/Gauntlet/package.json`
+- [X] T002 Verify TypeScript config in `/Users/echo/claudesidian/01_Projects/Gauntlet/tsconfig.json`
+- [X] T003 Verify Vitest config in `/Users/echo/claudesidian/01_Projects/Gauntlet/vitest.config.ts`
+- [X] T004 [P] Add reason-code constants in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/domain/reason-codes.ts`
+- [X] T005 [P] Add shared result types in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/domain/results.ts`
 
 ## Phase 2: Foundational
 
-- [ ] T006 Create Zod schemas for Policy, Merchant, Quote, PaymentRequest, History, Scenario, and Receipt in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/domain/schemas.ts`
-- [ ] T007 Create fixture loading utilities for YAML and JSON in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/io/fixtures.ts`
+- [X] T006 Create Zod schemas for Policy, Merchant, Quote, PaymentRequest, History, Scenario, and Receipt in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/domain/schemas.ts`
+- [X] T007 Create fixture loading utilities for YAML and JSON in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/io/fixtures.ts`
 - [ ] T008 Create filesystem output utilities for receipts and reports in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/io/output.ts`
-- [ ] T009 Implement decision precedence helper in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/decision.ts`
-- [ ] T010 Implement redaction policy in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/report/redaction.ts`
-- [ ] T011 [P] Add unit tests for schema validation in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/domain/schemas.test.ts`
-- [ ] T012 [P] Add unit tests for decision precedence in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/decision.test.ts`
-- [ ] T013 [P] Add unit tests for redaction in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/report/redaction.test.ts`
+- [X] T009 Implement decision precedence helper in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/decision.ts`
+- [X] T010 Implement redaction policy in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/report/redaction.ts`
+- [X] T011 [P] Add unit tests for schema validation in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/domain/schemas.test.ts`
+- [X] T012 [P] Add unit tests for decision precedence in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/decision.test.ts`
+- [X] T013 [P] Add unit tests for redaction in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/report/redaction.test.ts`
 
 ## Phase 3: User Story 1 - Run Built-In Payment Failure Scenarios (P1)
 
@@ -34,18 +34,18 @@ Goal: A developer can run the 8 must-have scenarios locally and get stable decis
 
 Independent test criteria: `gauntlet run` executes 8 scenarios and prints a summary with decision counts and high-signal failures.
 
-- [ ] T014 [US1] Create scenario fixture directory in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/fixtures`
-- [ ] T015 [P] [US1] Add valid payment scenario fixture in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/fixtures/valid-mcp-paid-tool-payment`
-- [ ] T016 [P] [US1] Add amount limit scenario fixture in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/fixtures/amount-exceeds-single-payment-limit`
-- [ ] T017 [P] [US1] Add cumulative budget scenario fixture in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/fixtures/cumulative-budget-exceeded`
-- [ ] T018 [P] [US1] Add blocked merchant scenario fixture in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/fixtures/blocked-merchant`
-- [ ] T019 [P] [US1] Add wrong currency scenario fixture in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/fixtures/wrong-token-or-currency`
-- [ ] T020 [P] [US1] Add quote expired scenario fixture in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/fixtures/quote-expired`
-- [ ] T021 [P] [US1] Add amount drift scenario fixture in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/fixtures/amount-drift-above-threshold`
-- [ ] T022 [P] [US1] Add duplicate idempotency scenario fixture in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/fixtures/duplicate-idempotency-key`
-- [ ] T023 [US1] Create built-in scenario registry in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
-- [ ] T024 [US1] Implement scenario runner in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/run.ts`
-- [ ] T025 [US1] Add scenario runner tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/scenarios/run.test.ts`
+- [X] T014 [US1] Create built-in scenario definitions in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T015 [P] [US1] Add valid payment scenario definition in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T016 [P] [US1] Add amount limit scenario definition in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T017 [P] [US1] Add cumulative budget scenario definition in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T018 [P] [US1] Add blocked merchant scenario definition in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T019 [P] [US1] Add wrong currency scenario definition in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T020 [P] [US1] Add quote expired scenario definition in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T021 [P] [US1] Add amount drift scenario definition in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T022 [P] [US1] Add duplicate idempotency scenario definition in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T023 [US1] Create built-in scenario registry in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/registry.ts`
+- [X] T024 [US1] Implement scenario runner in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/scenarios/run.ts`
+- [X] T025 [US1] Add scenario runner tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/scenarios/run.test.ts`
 
 ## Phase 4: User Story 2 - Evaluate a Custom Payment Request (P1)
 
@@ -64,9 +64,9 @@ Independent test criteria: `gauntlet run --policy --request --history` returns t
 - [ ] T034 [P] [US2] Implement quote drift rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/quote-drift.ts`
 - [ ] T035 [P] [US2] Implement idempotency rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/idempotency.ts`
 - [ ] T036 [P] [US2] Implement review threshold rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/review-threshold.ts`
-- [ ] T037 [US2] Implement evaluation orchestrator in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/evaluate.ts`
+- [X] T037 [US2] Implement evaluation orchestrator in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/evaluate.ts`
 - [ ] T038 [US2] Add rule unit tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/rules.test.ts`
-- [ ] T039 [US2] Add custom request integration tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/evaluate.test.ts`
+- [X] T039 [US2] Add custom request integration tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/evaluate.test.ts`
 
 ## Phase 5: User Story 3 - Generate Redacted Receipts and Markdown Reports (P1)
 
@@ -74,11 +74,11 @@ Goal: Every run creates debug artifacts that are useful and safe by default.
 
 Independent test criteria: receipt and report files include decision, reason codes, evaluated rules, and redaction metadata.
 
-- [ ] T040 [US3] Implement receipt builder in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/report/receipt.ts`
-- [ ] T041 [US3] Implement markdown report builder in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/report/markdown.ts`
+- [X] T040 [US3] Implement receipt builder in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/report/receipt.ts`
+- [X] T041 [US3] Implement markdown report builder in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/report/markdown.ts`
 - [ ] T042 [US3] Add receipt writer integration in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/io/output.ts`
-- [ ] T043 [US3] Add report snapshot tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/report/markdown.test.ts`
-- [ ] T044 [US3] Add receipt redaction tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/report/receipt.test.ts`
+- [X] T043 [US3] Add report snapshot tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/report/markdown.test.ts`
+- [X] T044 [US3] Add receipt redaction tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/report/receipt.test.ts`
 
 ## Phase 6: User Story 4 - Use CI Exit Codes (P2)
 
@@ -143,4 +143,3 @@ MVP is complete when Phase 1, Phase 2, US1, US2, and US3 pass:
 - built-in scenarios run
 - custom fixture evaluation works
 - redacted receipts and markdown reports are generated
-
