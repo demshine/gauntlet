@@ -1,0 +1,28 @@
+{
+  "name": "gauntlet",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A local payment policy test harness for MCP paid tool demos.",
+  "type": "module",
+  "bin": {
+    "gauntlet": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "yaml": "^2.5.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vitest": "^4.1.9"
+  }
+}
