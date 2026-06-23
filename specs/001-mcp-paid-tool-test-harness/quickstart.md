@@ -28,9 +28,9 @@ Gauntlet run complete
 
 Scenarios: 8
 Policy passed: 1
-Policy failed: 6
+Policy failed: 7
 Requires review: 0
-Invalid input: 1
+Invalid input: 0
 Advisory warnings: 0
 ```
 
@@ -45,7 +45,8 @@ npm run dev -- run --scenario amount-drift
 ```bash
 npm run dev -- run \
   --policy ./gauntlet/policy.yaml \
-  --request ./gauntlet/requests/payment_request.json \
+  --quote ./gauntlet/quote.json \
+  --request ./gauntlet/requests/valid-payment.json \
   --history ./gauntlet/history.json
 ```
 
@@ -54,4 +55,3 @@ npm run dev -- run \
 ```bash
 npm run dev -- run --ci
 ```
-

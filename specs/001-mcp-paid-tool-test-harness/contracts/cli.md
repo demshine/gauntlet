@@ -47,14 +47,17 @@ Runs one built-in or local scenario.
 gauntlet run --scenario amount-drift
 ```
 
-## `gauntlet run --policy --request --history`
+`amount-drift` is a documented short alias for `amount-drift-above-threshold`.
+
+## `gauntlet run --policy --quote --request --history`
 
 Runs one custom request against local fixtures.
 
 ```bash
 gauntlet run \
   --policy ./gauntlet/policy.yaml \
-  --request ./gauntlet/requests/payment_request.json \
+  --quote ./gauntlet/quote.json \
+  --request ./gauntlet/requests/valid-payment.json \
   --history ./gauntlet/history.json
 ```
 
@@ -83,4 +86,3 @@ gauntlet run --unredacted
 ```
 
 `--unredacted` is local-only and should not be used for public repo artifacts.
-

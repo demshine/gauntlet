@@ -12,7 +12,7 @@ import {
   quoteSchema
 } from "../domain/schemas.js";
 import { runBuiltInScenarios, runScenario } from "../scenarios/run.js";
-import { builtInScenarios } from "../scenarios/registry.js";
+import { builtInScenarios, resolveBuiltInScenarioId } from "../scenarios/registry.js";
 import type { Decision } from "../index.js";
 
 export interface RunOptions {
@@ -105,7 +105,10 @@ async function executeCustomRun(options: RunOptions): Promise<RunCommandResult> 
 }
 
 function summarizeSingleScenario(scenarioId: string) {
-  const scenario = builtInScenarios.find((candidate) => candidate.scenario_id === scenarioId);
+  const resolvedScenarioId = resolveBuiltInScenarioId(scenarioId);
+  const scenario = builtInScenarios.find(
+    (candidate) => candidate.scenario_id === resolvedScenarioId
+  );
   if (!scenario) {
     throw new Error(`Unknown scenario: ${scenarioId}`);
   }
