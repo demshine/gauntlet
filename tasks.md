@@ -124,6 +124,20 @@ Independent test criteria: example quote, payment request, Gauntlet decision, an
 - [X] T059 Add release checklist in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/release-checklist.md`
 - [X] T060 Run typecheck, tests, and build from `/Users/echo/claudesidian/01_Projects/Gauntlet`
 
+## Phase 9: External Validation
+
+Goal: Decide whether V0.1 has enough real user signal to justify V0.2.
+
+- [X] T061 Add external validation plan in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/external-validation-plan.md`
+- [X] T062 Add interview guide in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/interview-guide.md`
+- [X] T063 Add integration trial script in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/integration-trial.md`
+- [X] T064 Add validation log template in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/validation-log-template.md`
+- [X] T065 Add outreach templates in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/outreach-templates.md`
+- [ ] T066 Complete 20 target-user interviews.
+- [ ] T067 Collect 5 real or semi-real demo flows.
+- [ ] T068 Support 3 external developer integrations.
+- [ ] T069 Review continue/pivot gates before starting V0.2.
+
 ## Dependencies
 
 - Phase 1 must complete first.
