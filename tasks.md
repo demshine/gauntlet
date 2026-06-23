@@ -55,19 +55,19 @@ Goal: A developer can evaluate local policy/request/history fixtures.
 
 Independent test criteria: `gauntlet run --policy --request --history` returns the expected decision and reason codes for custom fixtures.
 
-- [ ] T026 [US2] Implement required field and metadata rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/required-fields.ts`
-- [ ] T027 [P] [US2] Implement max amount rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/max-amount.ts`
-- [ ] T028 [P] [US2] Implement cumulative budget rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/cumulative-budget.ts`
-- [ ] T029 [P] [US2] Implement merchant allow/block rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/merchant-match.ts`
-- [ ] T030 [P] [US2] Implement currency/token rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/currency-token.ts`
-- [ ] T031 [P] [US2] Implement chain/network rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/chain-network.ts`
-- [ ] T032 [P] [US2] Implement policy expiry rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/policy-expiry.ts`
-- [ ] T033 [P] [US2] Implement quote expiry rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/quote-expiry.ts`
-- [ ] T034 [P] [US2] Implement quote drift rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/quote-drift.ts`
-- [ ] T035 [P] [US2] Implement idempotency rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/idempotency.ts`
-- [ ] T036 [P] [US2] Implement review threshold rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/review-threshold.ts`
+- [X] T026 [US2] Implement required field and metadata rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/required-fields.ts`
+- [X] T027 [P] [US2] Implement max amount rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/max-amount.ts`
+- [X] T028 [P] [US2] Implement cumulative budget rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/cumulative-budget.ts`
+- [X] T029 [P] [US2] Implement merchant allow/block rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/merchant-match.ts`
+- [X] T030 [P] [US2] Implement currency/token rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/currency-token.ts`
+- [X] T031 [P] [US2] Implement chain/network rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/chain-network.ts`
+- [X] T032 [P] [US2] Implement policy expiry rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/policy-expiry.ts`
+- [X] T033 [P] [US2] Implement quote expiry rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/quote-expiry.ts`
+- [X] T034 [P] [US2] Implement quote drift rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/quote-drift.ts`
+- [X] T035 [P] [US2] Implement idempotency rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/idempotency.ts`
+- [X] T036 [P] [US2] Implement review threshold rule in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/rules/review-threshold.ts`
 - [X] T037 [US2] Implement evaluation orchestrator in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/engine/evaluate.ts`
-- [ ] T038 [US2] Add rule unit tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/rules.test.ts`
+- [X] T038 [US2] Add rule unit tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/rules.test.ts`
 - [X] T039 [US2] Add custom request integration tests in `/Users/echo/claudesidian/01_Projects/Gauntlet/tests/engine/evaluate.test.ts`
 - [X] T039A [US2] Wire `gauntlet run --policy --quote --request --history` in `/Users/echo/claudesidian/01_Projects/Gauntlet/src/cli/run-command.ts`
 
