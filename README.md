@@ -32,3 +32,29 @@ npm test
 npm run build
 ```
 
+## Current CLI
+
+Run built-in scenarios:
+
+```bash
+npm run dev -- run
+```
+
+Create local fixtures:
+
+```bash
+npm run dev -- init
+```
+
+Run a custom local fixture set:
+
+```bash
+npm run dev -- run \
+  --policy gauntlet/policy.yaml \
+  --quote gauntlet/quote.json \
+  --request gauntlet/requests/valid-payment.json \
+  --history gauntlet/history.json \
+  --output-dir gauntlet/receipts
+```
+
+Receipts are redacted by default. Use `--unredacted` only for local debugging.
