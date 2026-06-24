@@ -1,0 +1,103 @@
+name: Integration feedback
+description: Report results from trying Gauntlet in a real or semi-real demo flow.
+title: "[integration] "
+labels:
+  - integration-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying Gauntlet. Please avoid sharing private keys, wallet addresses, API keys, customer data, or unredacted receipts.
+  - type: dropdown
+    id: flow_type
+    attributes:
+      label: Flow type
+      options:
+        - MCP paid tool
+        - Agent tool-use payment
+        - Paid API / x402-like
+        - Agent wallet / payment infra
+        - Agent app
+        - DevRel / hackathon demo
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: realism
+    attributes:
+      label: Flow realism
+      options:
+        - Real
+        - Semi-real
+        - Demo-only
+    validations:
+      required: true
+  - type: input
+    id: public_link
+    attributes:
+      label: Public repo, demo, or docs link
+      placeholder: https://github.com/...
+    validations:
+      required: false
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Trial outcome
+      options:
+        - Completed built-in and custom fixture run
+        - Completed built-in run only
+        - Blocked by setup
+        - Blocked by docs or model confusion
+        - Not relevant to my flow
+    validations:
+      required: true
+  - type: input
+    id: time_to_builtin
+    attributes:
+      label: Time to run built-in scenarios
+      placeholder: "Example: 4 minutes"
+    validations:
+      required: false
+  - type: input
+    id: time_to_custom
+    attributes:
+      label: Time to run one custom fixture
+      placeholder: "Example: 25 minutes"
+    validations:
+      required: false
+  - type: textarea
+    id: useful_scenarios
+    attributes:
+      label: Useful scenarios
+      description: Which built-in scenarios felt real for your flow?
+      placeholder: Amount drift, duplicate idempotency key, quote expired...
+    validations:
+      required: false
+  - type: textarea
+    id: missing_scenarios
+    attributes:
+      label: Missing scenarios
+      description: What failure case should Gauntlet add next?
+    validations:
+      required: false
+  - type: textarea
+    id: receipt_feedback
+    attributes:
+      label: Receipt and report feedback
+      description: Did the redacted receipt/report help debug? Were any fields missing or too sensitive?
+    validations:
+      required: false
+  - type: textarea
+    id: ci_feedback
+    attributes:
+      label: CI feedback
+      description: Would `--ci` be useful in your repo, or would it create noise?
+    validations:
+      required: false
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Setup or integration blockers
+      description: What slowed you down or prevented completion?
+    validations:
+      required: false

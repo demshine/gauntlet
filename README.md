@@ -25,6 +25,7 @@ Gauntlet helps developers test whether an AI agent's simulated payment request s
 - External validation plan: [external-validation-plan.md](./docs/external-validation-plan.md)
 - Integration trial: [integration-trial.md](./docs/integration-trial.md)
 - Outreach templates: [outreach-templates.md](./docs/outreach-templates.md)
+- Validation tracker: [validation-tracker.md](./docs/validation-tracker.md)
 
 ## Development
 

@@ -38,3 +38,4 @@ Use this checklist before declaring V0.1 ready for external validation.
 - [Integration trial](./integration-trial.md)
 - [Outreach templates](./outreach-templates.md)
 - [Validation log template](./validation-log-template.md)
+- [Validation tracker](./validation-tracker.md)
