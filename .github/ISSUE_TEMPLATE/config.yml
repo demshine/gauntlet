@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: External validation guide
+    url: https://github.com/demshine/gauntlet/blob/main/docs/external-validation-plan.md
+    about: Read the validation goals, continue gates, and stop/pivot signals.
+  - name: Integration trial
+    url: https://github.com/demshine/gauntlet/blob/main/docs/integration-trial.md
+    about: Follow the trial script before filing integration feedback.

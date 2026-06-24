@@ -1,0 +1,79 @@
+name: Scenario contribution
+description: Propose a payment failure scenario for Gauntlet.
+title: "[scenario] "
+labels:
+  - scenario
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the scenario without private data. Redact wallet addresses, API keys, customer data, order IDs, and unredacted receipts.
+  - type: dropdown
+    id: category
+    attributes:
+      label: Scenario category
+      options:
+        - Amount or budget
+        - Merchant identity
+        - Currency / token / chain
+        - Quote lifecycle
+        - Idempotency / retry
+        - Required metadata
+        - Receipt / redaction
+        - Prompt or tool injection
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: flow
+    attributes:
+      label: Payment flow
+      description: What was the agent or tool trying to pay for?
+      placeholder: An MCP tool quoted access to...
+    validations:
+      required: true
+  - type: textarea
+    id: failure
+    attributes:
+      label: Failure or risk
+      description: What went wrong, or what could realistically go wrong?
+    validations:
+      required: true
+  - type: dropdown
+    id: expected_decision
+    attributes:
+      label: Expected Gauntlet decision
+      options:
+        - policy_failed
+        - requires_review
+        - invalid_input
+        - policy_passed with advisory warning
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: relevant_fields
+    attributes:
+      label: Relevant fixture fields
+      description: Which policy, quote, payment_request, merchant, or history fields should identify the issue?
+      placeholder: payment_request.amount, quote.expires_at, history.used_idempotency_keys...
+    validations:
+      required: false
+  - type: textarea
+    id: current_workaround
+    attributes:
+      label: Current workaround
+      description: How do you test or catch this today?
+    validations:
+      required: false
+  - type: dropdown
+    id: real_world_signal
+    attributes:
+      label: Real-world signal
+      options:
+        - Happened in a real flow
+        - Happened in a demo or hackathon
+        - Seen in a similar payment system
+        - Hypothesis only
+    validations:
+      required: true

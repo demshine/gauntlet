@@ -133,10 +133,12 @@ Goal: Decide whether V0.1 has enough real user signal to justify V0.2.
 - [X] T063 Add integration trial script in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/integration-trial.md`
 - [X] T064 Add validation log template in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/validation-log-template.md`
 - [X] T065 Add outreach templates in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/outreach-templates.md`
-- [ ] T066 Complete 20 target-user interviews.
-- [ ] T067 Collect 5 real or semi-real demo flows.
-- [ ] T068 Support 3 external developer integrations.
-- [ ] T069 Review continue/pivot gates before starting V0.2.
+- [X] T066 Add validation tracker in `/Users/echo/claudesidian/01_Projects/Gauntlet/docs/validation-tracker.md`
+- [X] T067 Add GitHub issue templates for external scenario and integration feedback in `/Users/echo/claudesidian/01_Projects/Gauntlet/.github/ISSUE_TEMPLATE`
+- [ ] T068 Complete 20 target-user interviews.
+- [ ] T069 Collect 5 real or semi-real demo flows.
+- [ ] T070 Support 3 external developer integrations.
+- [ ] T071 Review continue/pivot gates before starting V0.2.
 
 ## Dependencies
 
