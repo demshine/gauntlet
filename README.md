@@ -36,6 +36,8 @@ npm test
 npm run build
 ```
 
+Pull requests run the same verification steps in GitHub Actions.
+
 ## Current CLI
 
 Run built-in scenarios:
