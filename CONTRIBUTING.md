@@ -23,4 +23,4 @@ Never commit secrets, payment credentials, personal data, or unredacted producti
 
 ## Pull Requests
 
-Keep changes focused, add tests for behavior changes, and describe the failure case the change addresses.
+Keep changes focused, add tests for behavior changes, and describe the payment failure case the change addresses.
