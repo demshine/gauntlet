@@ -6,6 +6,8 @@ Gauntlet helps developers test whether an AI agent's simulated payment request s
 
 ## V0.1 Scope
 
+Gauntlet is actively seeking external validation; see the [external validation plan](./docs/external-validation-plan.md) for participation details.
+
 - Local CLI: `gauntlet init`, `gauntlet run`, `gauntlet run --ci`
 - Deterministic policy rules for amount, merchant matching, quote expiry, quote drift, idempotency, required metadata, and review thresholds
 - `history.json` fixture support for budget and duplicate checks
@@ -38,6 +40,10 @@ npm run build
 
 Pull requests run the same verification steps in GitHub Actions.
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development and contribution guidelines.
+
 ## Current CLI
 
 Run built-in scenarios:
@@ -64,3 +70,7 @@ npm run dev -- run \
 ```
 
 Receipts are redacted by default. Use `--unredacted` only for local debugging.
+
+## License
+
+Gauntlet is available under the [MIT License](./LICENSE).
