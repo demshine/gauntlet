@@ -6,7 +6,7 @@ Gauntlet helps developers test whether an AI agent's simulated payment request s
 
 ## V0.1 Scope
 
-Gauntlet is actively seeking external validation; see the [external validation plan](./docs/external-validation-plan.md) for participation details.
+Gauntlet is actively seeking external validation; review the [validation goals](./docs/external-validation-plan.md), [contribute a scenario](https://github.com/demshine/gauntlet/issues/new?template=scenario-contribution.yml), or [report integration feedback](https://github.com/demshine/gauntlet/issues/new?template=integration-feedback.yml).
 
 - Local CLI: `gauntlet init`, `gauntlet run`, `gauntlet run --ci`
 - Deterministic policy rules for amount, merchant matching, quote expiry, quote drift, idempotency, required metadata, and review thresholds

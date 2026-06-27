@@ -15,7 +15,7 @@ npm run build
 
 ## Scenario Contributions
 
-Follow the [scenario authoring guide](./docs/scenario-authoring.md), then submit the [scenario contribution issue form](./.github/ISSUE_TEMPLATE/scenario-contribution.yml).
+Follow the [scenario authoring guide](./docs/scenario-authoring.md), then submit the [scenario contribution form](https://github.com/demshine/gauntlet/issues/new?template=scenario-contribution.yml).
 
 ## Sensitive Data
 
