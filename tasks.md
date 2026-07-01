@@ -138,7 +138,7 @@ Goal: Decide whether V0.1 has enough real user signal to justify V0.2.
 - [X] T067A Add GitHub Actions CI for pull request verification in `/Users/echo/claudesidian/01_Projects/Gauntlet/.github/workflows/ci.yml`
 - [X] T067B Complete public-readiness audit and publish the repository.
 - [X] T067C Qualify 30 external validation candidates.
-- [ ] T067D Send 10 personalized first-wave invitations.
+- [X] T067D Send 10 personalized first-wave invitations.
 - [ ] T068 Complete 20 target-user interviews.
 - [ ] T069 Collect 5 real or semi-real demo flows.
 - [ ] T070 Support 3 external developer integrations.
