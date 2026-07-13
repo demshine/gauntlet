@@ -11,7 +11,7 @@ Use this tracker to summarize interviews, demo flows, external integrations, and
 | External developer integrations | 3 | 0 | Not started |
 | Non-friend scenario proposals | 1 | 0 | Not started |
 | Teams willing to pay for support/custom scenarios | 1 | 0 | Not started |
-| Must-have scenarios rated useful | 5 of 8 | 0 of 8 | Not started |
+| Must-have scenarios rated useful | 5 of 8 | 1 of 8 | Early signal |
 
 ## Interview Pipeline
 
@@ -42,9 +42,15 @@ Rate each scenario after every interview or trial as `real`, `maybe`, or `not re
 | Blocked or wrong merchant | 0 | 0 | 0 |  |
 | Wrong token/currency/chain | 0 | 0 | 0 |  |
 | Quote expired | 0 | 0 | 0 |  |
-| Amount drift | 0 | 0 | 0 |  |
+| Amount drift | 1 | 0 | 0 | MCP Dev LATAM maintainer ranked the drift assertion highest priority for mocked x402/OAC tests. |
 | Duplicate retry/idempotency | 0 | 0 | 0 |  |
 | Missing required metadata | 0 | 0 | 0 |  |
+
+## Public Outreach Replies
+
+| Date | Source | Signal | Next action |
+| --- | --- | --- | --- |
+| 2026-07-08 | [MCP Dev LATAM issue #212](https://github.com/codespar/mcp-dev-latam/issues/212#issuecomment-4919237747) | Maintainer said the proposed matrix is useful, all five assertions are in scope, and amount drift is the highest-priority assertion. | Follow-up posted on 2026-07-13 asking whether a redacted OAC/x402 drift fixture boundary maps to their mocked-fetch tests. |
 
 ## Continue Gate Review
 
@@ -56,7 +62,7 @@ Review before starting V0.2.
 | 1 non-friend user proposed a scenario | Yes |  | No |
 | 1 team willing to pay for support/custom scenarios | Majority gate |  | No |
 | Real GitHub issue or PR | Majority gate |  | No |
-| 5 of 8 must-have scenarios rated useful | Majority gate |  | No |
+| 5 of 8 must-have scenarios rated useful | Majority gate | 1 of 8 has public positive signal: amount drift. | No |
 | 1 real flow found an unnoticed problem | Majority gate |  | No |
 | Users say Gauntlet beats first self-written script | Majority gate |  | No |
 
@@ -64,4 +70,4 @@ Review before starting V0.2.
 
 | Date | Decision | Evidence | Next action |
 | --- | --- | --- | --- |
-|  |  |  |  |
+| 2026-07-13 | Keep validation in outreach mode; do not start V0.2 yet. | 1 public maintainer reply supports the amount-drift scenario, but interviews, demo flows, and external integrations are still at 0. | Wait for fixture-boundary confirmation from the respondent; send one follow-up to the remaining first-wave contacts only where it adds project-specific value. |
