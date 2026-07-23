@@ -32,13 +32,13 @@ Gauntlet is actively seeking external validation; review the [validation goals](
 
 ## Browser Demo
 
-Open the static field demo:
+打开中文静态 FDE 演示：
 
 ```bash
 open demo/index.html
 ```
 
-The demo shows the same payment-preflight model in a browser: choose a scenario, run the policy check, inspect the request, and show the redacted receipt/report.
+演示页面以「Agent 请求 → 报价核对 → 策略判断 → 脱敏凭证」呈现同一套支付预检模型。可以切换内置风险场景、修改金额和商户、运行逐项检查，并在技术证据区查看策略、请求快照、脱敏凭证和开发报告。
 
 ## Development
 

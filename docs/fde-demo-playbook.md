@@ -1,42 +1,84 @@
-# FDE Demo Playbook
+# Gauntlet FDE 演示手册
 
-Use this when presenting Gauntlet as a field demo. The goal is not to pitch a finished payment platform. The goal is to make agent-payment risk concrete in 5 minutes.
+这份手册用于现场演示 Gauntlet。目标不是把它包装成已经上线的支付平台，而是在 5 分钟内让客户看懂 Agent 支付的风险、策略边界和可交付凭证。
 
-## Demo URL
+## 打开演示
 
-Open the static browser demo:
+直接打开静态中文页面：
 
 ```bash
 open demo/index.html
 ```
 
-No dev server is required.
+页面不需要开发服务器，也不依赖外部网络。
 
-## 5 Minute Flow
+## 五分钟演示流程
 
-1. Start on `Valid MCP paid tool payment`.
-   - Say: "This is a local preflight check before an agent continues a paid tool flow."
-   - Show the policy limit, quote, request, and redacted receipt.
+### 1. 建立正常基线（约 45 秒）
 
-2. Switch to `Amount drift above threshold`.
-   - Say: "The danger is not only that the first amount is too high. It is that a quote can change between challenge and payment."
-   - Run preflight.
-   - Point to `quote_amount_drift_exceeded`.
+选择「正常工具支付」，点击「运行预检」。
 
-3. Switch to `Duplicate idempotency key`.
-   - Say: "Retries are where agent payment demos often get weird. A retry needs to be safe, not just successful."
-   - Run preflight.
-   - Point to `duplicate_idempotency_key`.
+建议讲法：
 
-4. Change the merchant dropdown to `Blocked merchant`.
-   - Say: "This is the simplest policy boundary: same task, same agent, different merchant, different decision."
+> 这是研究 Agent 准备购买一次 MCP 工具调用。Gauntlet 会在调用支付服务商之前，本地核对报价、商户、预算、幂等性和必要信息。现在八项规则都符合当前策略，所以流程可以继续。
 
-5. Close on the receipt.
-   - Say: "The artifact matters. A receipt gives developers a debug trail they can attach to CI, a PR, or an incident review."
+注意使用「符合当前策略」，不要表述为「这笔支付绝对安全」。
 
-## CLI Backup
+### 2. 展示报价漂移（约 75 秒）
 
-If the browser is not available, use the CLI:
+选择「报价金额漂移」，点击「运行预检」。
+
+建议讲法：
+
+> 风险不只来自最初报价过高。Agent 拿到报价之后，最终支付金额也可能发生变化。这里报价从 2.00 变为 2.50 USDC，涨幅 25%，超过策略允许的 10%，所以请求在钱动之前被拦截。
+
+重点指向：
+
+- 中间规则列表中的「报价金额变化」
+- 右侧自然语言判断依据
+- 「已拦截支付」而不是模糊的错误提示
+
+### 3. 展示重复支付（约 60 秒）
+
+选择「疑似重复支付」，点击「运行预检」。
+
+建议讲法：
+
+> 这笔请求单独看没有问题，但任务历史中已经出现过相同的幂等键。Agent 的重试必须是安全的，而不只是成功的，所以 Gauntlet 会结合历史阻止重复支付。
+
+### 4. 展示人工边界（约 60 秒）
+
+选择「触发人工复核」，点击「运行预检」。
+
+建议讲法：
+
+> 企业控制不只有允许和拒绝。这里 4 USDC 没有超过 5 USDC 的硬性上限，但超过 Agent 3 USDC 的自主支付阈值，因此流程停下来等待人工确认。
+
+### 5. 用脱敏凭证收尾（约 60 秒）
+
+向下滚动到「技术证据」，打开「脱敏凭证」。
+
+建议讲法：
+
+> 决定不是黑盒。Gauntlet 会输出机器可读的脱敏凭证，包含请求、策略版本、命中规则、时间戳和最终决定。开发团队可以把它放进 CI、PR 或事故复盘。
+
+最后可以用这句话收尾：
+
+> 给我一条你们真实的 Agent 支付流程，我可以把它转成本地策略和失败场景，在真实资金移动前反复预检。
+
+## 现场可修改参数
+
+页面支持直接修改以下参数，然后重新运行预检：
+
+- 最终金额
+- 收款方范围
+- 报价是否过期
+
+金额编辑会同步计算相对原报价的漂移比例，适合现场制造一个变化并展示因果关系。
+
+## CLI 备用方案
+
+如果现场无法使用浏览器，可以运行：
 
 ```bash
 npm install
@@ -45,7 +87,7 @@ npm run dev -- run
 npm run dev -- run --scenario amount-drift
 ```
 
-For custom fixtures:
+自定义本地输入：
 
 ```bash
 npm run dev -- init
@@ -57,24 +99,16 @@ npm run dev -- run \
   --output-dir gauntlet/receipts
 ```
 
-## What This Demonstrates
+## 演示能证明什么
 
-- Deterministic payment policy checks before a paid tool flow continues.
-- Failure scenarios that ordinary agent demos often skip.
-- Redacted receipts for debugging and CI.
-- A repeatable way to turn a real customer flow into a safe local fixture.
+- Agent 支付可以在继续调用付费工具前执行确定性策略检查。
+- 金额漂移、重复支付、商户限制等失败场景可以转成本地固定测试数据。
+- 每次判断都能生成面向开发者的脱敏凭证与报告。
+- 客户的一条真实支付流程可以被转成可重复运行的本地预检场景。
 
-## What Not To Claim
+## 演示不能宣称什么
 
-- Do not claim Gauntlet approves real payments.
-- Do not claim it verifies merchant identity.
-- Do not claim it is production runtime enforcement.
-- Do not claim V0.2 is validated.
-
-## Strong FDE Angle
-
-The useful field motion is:
-
-> Give me one payment flow from your agent demo, and I will turn the risky edge cases into local fixtures you can run before real money moves.
-
-That offer is more concrete than "agent payment safety", and it maps directly to custom scenario work, integration support, and policy review.
+- 不要宣称 Gauntlet 已经批准或执行真实支付。
+- 不要宣称它能够验证真实商户身份。
+- 不要宣称 V0.1 已经是生产环境的运行时控制层。
+- 不要宣称 V0.2 已经完成市场验证。
