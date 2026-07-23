@@ -1,141 +1,209 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gauntlet Demo</title>
+    <meta
+      name="description"
+      content="Gauntlet AI Agent 支付策略预检演示"
+    />
+    <title>Gauntlet｜AI 支付策略预检台</title>
+    <link rel="icon" href="data:," />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="demo-shell">
-      <section class="workspace" aria-label="Gauntlet payment preflight demo">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">Gauntlet V0.1 Demo</p>
-            <h1>Agent payment preflight</h1>
-          </div>
-          <div class="run-status" id="runStatus">Ready</div>
-        </header>
-
-        <section class="scenario-strip" aria-label="Scenario selector">
-          <div>
-            <label for="scenarioSelect">Scenario</label>
-            <select id="scenarioSelect"></select>
-          </div>
-          <button id="runButton" type="button">Run preflight</button>
-          <button id="resetButton" type="button" class="secondary">Reset fixture</button>
-        </section>
-
-        <section class="flow" aria-label="Payment flow">
-          <div class="flow-node" data-step="agent">
-            <span>1</span>
-            <strong>Agent</strong>
-            <small>asks to buy tool access</small>
-          </div>
-          <div class="flow-line"></div>
-          <div class="flow-node" data-step="quote">
-            <span>2</span>
-            <strong>Quote</strong>
-            <small>locks amount and expiry</small>
-          </div>
-          <div class="flow-line"></div>
-          <div class="flow-node" data-step="policy">
-            <span>3</span>
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="brand" href="#top" aria-label="Gauntlet 演示首页">
+          <span class="brand-mark" aria-hidden="true">G</span>
+          <span>
             <strong>Gauntlet</strong>
-            <small>checks payment policy</small>
-          </div>
-          <div class="flow-line"></div>
-          <div class="flow-node" data-step="receipt">
-            <span>4</span>
-            <strong>Receipt</strong>
-            <small>explains the decision</small>
-          </div>
-        </section>
+            <small>AI 支付策略预检</small>
+          </span>
+        </a>
 
-        <section class="decision-band" id="decisionBand">
-          <div>
-            <p class="eyebrow">Decision</p>
-            <h2 id="decisionTitle">Policy passed</h2>
-          </div>
-          <div class="reason-list" id="reasonList"></div>
-        </section>
+        <div class="header-meta">
+          <span class="local-badge"><i aria-hidden="true"></i>本地演示 · 不触发真实支付</span>
+          <span class="version">V0.1</span>
+        </div>
+      </header>
 
-        <section class="grid">
-          <article class="panel">
-            <div class="panel-heading">
-              <h2>Policy</h2>
-              <span id="policySummary"></span>
+      <main id="top">
+        <section class="demo-layout" aria-label="AI 支付预检工作台">
+          <aside class="scenario-rail" aria-labelledby="scenarioTitle">
+            <div class="rail-heading">
+              <p class="section-kicker">演示场景</p>
+              <h1 id="scenarioTitle">钱动之前，先过一遍规则</h1>
+              <p>选择一个真实风险，观察同一笔 Agent 支付为何被放行或拦截。</p>
             </div>
-            <pre id="policyJson"></pre>
-          </article>
+            <div class="scenario-list" id="scenarioList"></div>
+          </aside>
 
-          <article class="panel">
-            <div class="panel-heading">
-              <h2>Payment Request</h2>
-              <span id="requestSummary"></span>
+          <section class="simulation" aria-labelledby="simulationTitle">
+            <div class="simulation-header">
+              <div>
+                <p class="section-kicker">实时模拟</p>
+                <h2 id="simulationTitle">研究智能体准备购买工具调用</h2>
+              </div>
+              <div class="simulation-actions">
+                <button class="button ghost" id="resetButton" type="button">重置</button>
+                <button class="button primary" id="runButton" type="button">
+                  <span class="play-icon" aria-hidden="true"></span>
+                  运行预检
+                </button>
+              </div>
             </div>
-            <div class="fixture-tools">
+
+            <div class="flow-track" aria-label="支付预检流程">
+              <div class="flow-step" data-step="request">
+                <span class="step-index">01</span>
+                <span><strong>Agent 请求</strong><small>准备付款</small></span>
+              </div>
+              <span class="flow-arrow" aria-hidden="true">→</span>
+              <div class="flow-step" data-step="quote">
+                <span class="step-index">02</span>
+                <span><strong>报价核对</strong><small>金额与时效</small></span>
+              </div>
+              <span class="flow-arrow" aria-hidden="true">→</span>
+              <div class="flow-step" data-step="policy">
+                <span class="step-index">03</span>
+                <span><strong>策略判断</strong><small>八类规则</small></span>
+              </div>
+              <span class="flow-arrow" aria-hidden="true">→</span>
+              <div class="flow-step" data-step="receipt">
+                <span class="step-index">04</span>
+                <span><strong>生成凭证</strong><small>可审计结果</small></span>
+              </div>
+            </div>
+
+            <div class="payment-stage">
+              <div class="agent-identity">
+                <span class="agent-avatar" aria-hidden="true">AI</span>
+                <span>
+                  <small>发起方</small>
+                  <strong>研究智能体 / research-agent</strong>
+                </span>
+              </div>
+
+              <div class="payment-amount">
+                <small>本次支付请求</small>
+                <strong><span id="amountDisplay">2.00</span> <em id="currencyDisplay">USDC</em></strong>
+                <span id="purposeDisplay">购买 MCP 工具调用权限</span>
+              </div>
+
+              <div class="merchant-identity">
+                <span>
+                  <small>收款方</small>
+                  <strong id="merchantDisplay">Example MCP 工具服务</strong>
+                </span>
+                <span class="merchant-mark" aria-hidden="true">M</span>
+              </div>
+            </div>
+
+            <div class="control-strip" aria-label="支付请求参数">
               <label>
-                Amount
-                <input id="amountInput" type="number" min="0" step="0.1" />
+                <span>最终金额</span>
+                <span class="input-with-unit">
+                  <input id="amountInput" type="number" min="0" step="0.1" />
+                  <b>USDC</b>
+                </span>
               </label>
               <label>
-                Merchant
+                <span>收款方</span>
                 <select id="merchantInput">
-                  <option value="merchant_api_example">Allowed merchant</option>
-                  <option value="merchant_blocked">Blocked merchant</option>
-                  <option value="merchant_unknown">Unknown merchant</option>
+                  <option value="merchant_api_example">白名单商户</option>
+                  <option value="merchant_blocked">黑名单商户</option>
+                  <option value="merchant_unknown">未知商户</option>
                 </select>
               </label>
               <label>
-                Quote expiry
+                <span>报价状态</span>
                 <select id="quoteExpiryInput">
-                  <option value="valid">Valid</option>
-                  <option value="expired">Expired</option>
+                  <option value="valid">有效期内</option>
+                  <option value="expired">已过期</option>
                 </select>
               </label>
             </div>
-            <pre id="requestJson"></pre>
-          </article>
 
-          <article class="panel">
-            <div class="panel-heading">
-              <h2>Receipt</h2>
-              <span id="receiptSummary"></span>
+            <div class="policy-checks" id="policyChecks" aria-label="策略检查结果"></div>
+          </section>
+
+          <aside class="decision-panel idle" id="decisionPanel" aria-live="polite">
+            <div class="decision-topline">
+              <span>GAUNTLET DECISION</span>
+              <span id="decisionTime">等待运行</span>
             </div>
-            <pre id="receiptJson"></pre>
-          </article>
+
+            <div class="decision-symbol" aria-hidden="true">
+              <span id="decisionSymbol">G</span>
+              <i></i>
+            </div>
+
+            <div class="decision-copy">
+              <p class="section-kicker" id="decisionEyebrow">策略闸门</p>
+              <h2 id="decisionTitle">等待预检</h2>
+              <p id="decisionSummary">运行后，Gauntlet 会在资金移动之前给出可解释的决定。</p>
+            </div>
+
+            <div class="reason-block">
+              <span>判断依据</span>
+              <div class="reason-list" id="reasonList">
+                <p>尚未执行检查</p>
+              </div>
+            </div>
+
+            <div class="receipt-meta">
+              <div><span>策略</span><strong>agent-pay-v1</strong></div>
+              <div><span>执行模式</span><strong>Fail closed</strong></div>
+              <div><span>凭证</span><strong id="receiptId">待生成</strong></div>
+            </div>
+
+            <p class="decision-footnote">这是本地确定性模拟，不会连接钱包或支付服务商。</p>
+          </aside>
         </section>
 
-        <section class="bottom-grid">
-          <article class="panel report-panel">
-            <div class="panel-heading">
-              <h2>Developer Report</h2>
-              <span>what you show in a PR or CI log</span>
+        <section class="evidence-section" aria-labelledby="evidenceTitle">
+          <div class="evidence-heading">
+            <div>
+              <p class="section-kicker">技术证据</p>
+              <h2 id="evidenceTitle">结论不是黑盒：每一步都有输入与凭证</h2>
             </div>
-            <pre id="reportText"></pre>
-          </article>
+            <button class="text-button" id="copyButton" type="button">复制当前凭证</button>
+          </div>
 
-          <article class="panel talk-track">
-            <div class="panel-heading">
-              <h2>FDE Talk Track</h2>
-              <span>2 minute version</span>
+          <div class="tabs" role="tablist" aria-label="技术证据视图">
+            <button class="tab active" id="tab-policy" data-tab="policy" role="tab" aria-selected="true">策略规则</button>
+            <button class="tab" id="tab-request" data-tab="request" role="tab" aria-selected="false">请求快照</button>
+            <button class="tab" id="tab-receipt" data-tab="receipt" role="tab" aria-selected="false">脱敏凭证</button>
+            <button class="tab" id="tab-report" data-tab="report" role="tab" aria-selected="false">开发报告</button>
+          </div>
+
+          <div class="evidence-body">
+            <div class="evidence-context">
+              <p id="evidenceLabel">当前生效的支付边界</p>
+              <dl id="evidenceFacts"></dl>
             </div>
-            <ol>
-              <li>Start with the risk: the agent can spend money before a human sees the exact request.</li>
-              <li>Show the quote and request. Point out that ordinary logs rarely encode policy intent.</li>
-              <li>Switch to amount drift or duplicate idempotency. Run preflight and show the failure reason.</li>
-              <li>Close with the receipt: this is the artifact a developer can debug, commit, or attach to CI.</li>
-            </ol>
-            <div class="cli-box">
-              <p>CLI equivalent</p>
-              <code>npm run dev -- run --scenario amount-drift</code>
-            </div>
-          </article>
+            <pre id="evidenceCode" tabindex="0"></pre>
+          </div>
         </section>
-      </section>
-    </main>
 
+        <section class="talk-track" aria-labelledby="talkTrackTitle">
+          <div class="talk-intro">
+            <p class="section-kicker">FDE 现场讲解</p>
+            <h2 id="talkTrackTitle">五分钟，把抽象的支付风险讲清楚</h2>
+            <p>先展示正常请求，再切到金额漂移或重复扣款。最后用脱敏凭证收尾。</p>
+          </div>
+          <ol>
+            <li><span>01</span><strong>先讲风险</strong><p>Agent 能在人工看到准确请求之前触发付费工具。</p></li>
+            <li><span>02</span><strong>运行正常场景</strong><p>说明 Gauntlet 在资金移动之前进行本地确定性检查。</p></li>
+            <li><span>03</span><strong>制造一个变化</strong><p>把金额改为 2.5 USDC，展示报价漂移如何被立即拦截。</p></li>
+            <li><span>04</span><strong>交付证据</strong><p>打开脱敏凭证，说明它可以进入 CI、PR 或事故复盘。</p></li>
+          </ol>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="./app.js"></script>
   </body>
 </html>
