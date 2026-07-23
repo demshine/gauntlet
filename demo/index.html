@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gauntlet Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="demo-shell">
+      <section class="workspace" aria-label="Gauntlet payment preflight demo">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Gauntlet V0.1 Demo</p>
+            <h1>Agent payment preflight</h1>
+          </div>
+          <div class="run-status" id="runStatus">Ready</div>
+        </header>
+
+        <section class="scenario-strip" aria-label="Scenario selector">
+          <div>
+            <label for="scenarioSelect">Scenario</label>
+            <select id="scenarioSelect"></select>
+          </div>
+          <button id="runButton" type="button">Run preflight</button>
+          <button id="resetButton" type="button" class="secondary">Reset fixture</button>
+        </section>
+
+        <section class="flow" aria-label="Payment flow">
+          <div class="flow-node" data-step="agent">
+            <span>1</span>
+            <strong>Agent</strong>
+            <small>asks to buy tool access</small>
+          </div>
+          <div class="flow-line"></div>
+          <div class="flow-node" data-step="quote">
+            <span>2</span>
+            <strong>Quote</strong>
+            <small>locks amount and expiry</small>
+          </div>
+          <div class="flow-line"></div>
+          <div class="flow-node" data-step="policy">
+            <span>3</span>
+            <strong>Gauntlet</strong>
+            <small>checks payment policy</small>
+          </div>
+          <div class="flow-line"></div>
+          <div class="flow-node" data-step="receipt">
+            <span>4</span>
+            <strong>Receipt</strong>
+            <small>explains the decision</small>
+          </div>
+        </section>
+
+        <section class="decision-band" id="decisionBand">
+          <div>
+            <p class="eyebrow">Decision</p>
+            <h2 id="decisionTitle">Policy passed</h2>
+          </div>
+          <div class="reason-list" id="reasonList"></div>
+        </section>
+
+        <section class="grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <h2>Policy</h2>
+              <span id="policySummary"></span>
+            </div>
+            <pre id="policyJson"></pre>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <h2>Payment Request</h2>
+              <span id="requestSummary"></span>
+            </div>
+            <div class="fixture-tools">
+              <label>
+                Amount
+                <input id="amountInput" type="number" min="0" step="0.1" />
+              </label>
+              <label>
+                Merchant
+                <select id="merchantInput">
+                  <option value="merchant_api_example">Allowed merchant</option>
+                  <option value="merchant_blocked">Blocked merchant</option>
+                  <option value="merchant_unknown">Unknown merchant</option>
+                </select>
+              </label>
+              <label>
+                Quote expiry
+                <select id="quoteExpiryInput">
+                  <option value="valid">Valid</option>
+                  <option value="expired">Expired</option>
+                </select>
+              </label>
+            </div>
+            <pre id="requestJson"></pre>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <h2>Receipt</h2>
+              <span id="receiptSummary"></span>
+            </div>
+            <pre id="receiptJson"></pre>
+          </article>
+        </section>
+
+        <section class="bottom-grid">
+          <article class="panel report-panel">
+            <div class="panel-heading">
+              <h2>Developer Report</h2>
+              <span>what you show in a PR or CI log</span>
+            </div>
+            <pre id="reportText"></pre>
+          </article>
+
+          <article class="panel talk-track">
+            <div class="panel-heading">
+              <h2>FDE Talk Track</h2>
+              <span>2 minute version</span>
+            </div>
+            <ol>
+              <li>Start with the risk: the agent can spend money before a human sees the exact request.</li>
+              <li>Show the quote and request. Point out that ordinary logs rarely encode policy intent.</li>
+              <li>Switch to amount drift or duplicate idempotency. Run preflight and show the failure reason.</li>
+              <li>Close with the receipt: this is the artifact a developer can debug, commit, or attach to CI.</li>
+            </ol>
+            <div class="cli-box">
+              <p>CLI equivalent</p>
+              <code>npm run dev -- run --scenario amount-drift</code>
+            </div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
