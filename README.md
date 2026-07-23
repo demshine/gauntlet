@@ -28,6 +28,17 @@ Gauntlet is actively seeking external validation; review the [validation goals](
 - Integration trial: [integration-trial.md](./docs/integration-trial.md)
 - Outreach templates: [outreach-templates.md](./docs/outreach-templates.md)
 - Validation tracker: [validation-tracker.md](./docs/validation-tracker.md)
+- FDE demo playbook: [fde-demo-playbook.md](./docs/fde-demo-playbook.md)
+
+## Browser Demo
+
+Open the static field demo:
+
+```bash
+open demo/index.html
+```
+
+The demo shows the same payment-preflight model in a browser: choose a scenario, run the policy check, inspect the request, and show the redacted receipt/report.
 
 ## Development
 
