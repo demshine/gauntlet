@@ -38,7 +38,7 @@ Gauntlet is actively seeking external validation; review the [validation goals](
 open demo/index.html
 ```
 
-演示页面采用单舞台导演模式，按「支付请求 → 规则预检 → 支付决定 → 审计凭证」推进。可以切换内置风险场景、修改金额和商户、观看八项规则逐项检查，并在最后查看策略、请求快照、脱敏凭证和开发报告。
+演示页面把 Gauntlet 呈现为一台本地 Agent 支付失败测试工作台，按「测试输入 → 执行规则 → 验证结果 → 测试凭证」推进。可以切换内置 fixture、修改金额和商户、观看八项确定性规则逐项执行，并查看原因码、请求快照、脱敏凭证和开发报告。页面不连接钱包，也不会移动真实资金。
 
 ## Development
 

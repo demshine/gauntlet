@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Gauntlet AI Agent 支付策略预检演示" />
-    <title>Gauntlet｜Agent 支付预检</title>
+    <meta name="description" content="Gauntlet：面向 MCP 付费工具 Demo 的 Agent 支付失败测试套件" />
+    <title>Gauntlet｜Agent 支付失败测试套件</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -71,30 +71,30 @@
       <header class="topbar">
         <a class="brand" href="#" aria-label="Gauntlet 演示首页">
           <span class="brand-symbol"><svg><use href="#icon-shield"></use></svg></span>
-          <span><strong>Gauntlet</strong><small>Agent 支付预检</small></span>
+          <span><strong>Gauntlet</strong><small>Agent 支付失败测试套件</small></span>
         </a>
 
         <nav class="progress" aria-label="演示进度">
           <div class="progress-step active" data-progress="request">
-            <span>1</span><strong>支付请求</strong>
+            <span>1</span><strong>测试输入</strong>
           </div>
           <i></i>
           <div class="progress-step" data-progress="checking">
-            <span>2</span><strong>规则预检</strong>
+            <span>2</span><strong>执行规则</strong>
           </div>
           <i></i>
           <div class="progress-step" data-progress="result">
-            <span>3</span><strong>支付决定</strong>
+            <span>3</span><strong>验证结果</strong>
           </div>
           <i></i>
           <div class="progress-step" data-progress="receipt">
-            <span>4</span><strong>审计凭证</strong>
+            <span>4</span><strong>测试凭证</strong>
           </div>
         </nav>
 
         <div class="environment-status">
           <span class="status-dot"></span>
-          <span><strong>本地模拟</strong><small>未连接真实支付</small></span>
+          <span><strong>本地测试模式</strong><small>无钱包 · 无真实资金</small></span>
         </div>
       </header>
 
@@ -102,7 +102,7 @@
         <section class="scenario-bar" aria-label="演示场景快捷选择">
           <div class="scenario-current">
             <span class="scenario-index" id="scenarioIndex">08 / 09</span>
-            <span><small>当前演示场景</small><strong id="scenarioTitle">报价金额漂移</strong></span>
+            <span><small>当前测试场景</small><strong id="scenarioTitle">报价金额漂移</strong></span>
           </div>
           <div class="scenario-shortcuts" id="scenarioShortcuts"></div>
           <button class="icon-text-button" id="openScenariosButton" type="button">
@@ -112,27 +112,41 @@
 
         <section class="stage" aria-live="polite">
           <section class="screen request-screen active" data-screen="request">
-            <div class="screen-heading">
+            <div class="screen-heading product-positioning">
+              <div class="positioning-copy">
+                <p class="overline">MCP 付费工具的 Agent 支付失败测试套件</p>
+                <h1>在 Agent 为工具付费之前，先测试它会不会付错。</h1>
+                <p>Gauntlet 是给 MCP 付费工具 Demo 开发者使用的本地测试工具。它把模拟支付请求、确定性策略和任务历史组合成可重复运行的失败场景。</p>
+              </div>
+              <aside class="positioning-facts" aria-label="产品定位与边界">
+                <div><small>适用对象</small><strong>MCP 付费工具 Demo 开发者</strong></div>
+                <div><small>测试输入</small><strong>请求 · 策略 · 历史记录</strong></div>
+                <div><small>测试输出</small><strong>结果 · 原因码 · 脱敏凭证</strong></div>
+                <p>V0.1 不连接钱包、不移动资金，也不批准真实付款。</p>
+              </aside>
+            </div>
+
+            <div class="case-heading">
               <div>
-                <p class="overline">PAYMENT INTENT · <span id="requestIdLabel">REQ_123</span></p>
-                <h1>这笔 Agent 支付，应该继续吗？</h1>
+                <p class="overline">当前失败测试 · <span id="requestIdLabel">REQ_123</span></p>
+                <h2 id="caseTitle">报价金额漂移</h2>
                 <p id="scenarioDescription">最终金额相较原报价上涨 25%，超过策略允许的 10%。</p>
               </div>
               <button class="secondary-button" id="editButton" type="button">
-                <svg><use href="#icon-edit"></use></svg>调整请求
+                <svg><use href="#icon-edit"></use></svg>调整测试输入
               </button>
             </div>
 
             <div class="payment-path" id="paymentPath">
               <div class="path-party agent-party">
                 <span class="party-icon"><svg><use href="#icon-bot"></use></svg></span>
-                <span><small>发起方</small><strong>研究智能体</strong><em>research-agent</em></span>
+                <span><small>模拟发起方</small><strong>研究智能体</strong><em>research-agent</em></span>
               </div>
 
               <div class="path-line"><span></span><svg><use href="#icon-arrow"></use></svg></div>
 
               <div class="payment-intent">
-                <small>准备支付</small>
+                <small>模拟请求金额</small>
                 <strong><span id="amountDisplay">2.50</span><em id="currencyDisplay">USDC</em></strong>
                 <p id="purposeDisplay">购买 MCP 工具调用权限</p>
               </div>
@@ -141,14 +155,14 @@
 
               <div class="gate-node">
                 <span class="gate-mark"><svg><use href="#icon-shield"></use></svg></span>
-                <span><small>付款前闸门</small><strong>Gauntlet</strong><em>资金尚未移动</em></span>
+                <span><small>本地测试引擎</small><strong>Gauntlet</strong><em>仅评估 fixture</em></span>
               </div>
 
               <div class="path-line"><span></span><svg><use href="#icon-arrow"></use></svg></div>
 
               <div class="path-party merchant-party">
                 <span class="party-icon"><svg><use href="#icon-store"></use></svg></span>
-                <span><small>收款方</small><strong id="merchantDisplay">Example MCP 工具服务</strong><em>MCP Server</em></span>
+                <span><small>模拟收款方</small><strong id="merchantDisplay">Example MCP 工具服务</strong><em>MCP Server</em></span>
               </div>
             </div>
 
@@ -172,9 +186,9 @@
           <section class="screen checking-screen" data-screen="checking">
             <div class="checking-intro">
               <span class="scanning-mark"><svg><use href="#icon-shield"></use></svg><i></i></span>
-              <p class="overline">DETERMINISTIC PREFLIGHT</p>
-              <h1>正在核对 8 项支付边界</h1>
-              <p>报价、请求、策略与任务历史正在本地比对。支付服务商尚未被调用。</p>
+              <p class="overline">LOCAL DETERMINISTIC TEST</p>
+              <h1>正在执行 8 项支付失败测试</h1>
+              <p>Gauntlet 正在本地比对 fixture 中的请求、报价、策略与任务历史，不会调用支付服务商。</p>
               <div class="check-progress"><span id="checkProgressBar"></span></div>
               <strong id="checkProgressText">0 / 8</strong>
             </div>
@@ -185,9 +199,9 @@
             <div class="result-hero" id="resultHero">
               <span class="result-icon" id="resultIcon"><svg><use href="#icon-x"></use></svg></span>
               <p class="overline" id="resultEyebrow">POLICY FAILED</p>
-              <h1 id="resultTitle">付款请求已拦截</h1>
-              <p id="resultSummary">最终金额变化超过当前策略允许的范围。</p>
-              <div class="result-boundary">支付服务商尚未被调用 · 资金未移动</div>
+              <h1 id="resultTitle">测试结果：违反当前策略</h1>
+              <p id="resultSummary">该模拟支付请求命中了报价金额漂移规则。</p>
+              <div class="result-boundary">本地测试结论 · 不代表真实付款授权</div>
             </div>
 
             <div class="result-explanation">
@@ -210,9 +224,9 @@
           <section class="screen receipt-screen" data-screen="receipt">
             <div class="receipt-summary">
               <span class="receipt-seal"><svg><use href="#icon-lock"></use></svg></span>
-              <p class="overline">REDACTED AUDIT RECEIPT</p>
-              <h1>决定已记录，敏感字段已脱敏</h1>
-              <p>这份凭证包含本次请求、策略版本、命中规则和最终决定，可用于本地测试、CI、PR 检查或事故复盘。</p>
+              <p class="overline">REDACTED TEST RECEIPT</p>
+              <h1>测试证据已生成，敏感字段已脱敏</h1>
+              <p>这份开发者凭证记录测试输入、策略版本、命中规则和验证结果，可用于本地调试、CI、PR 检查或事故复盘。</p>
               <dl id="receiptFacts"></dl>
               <div class="receipt-actions">
                 <button class="secondary-button dark" id="copyButton" type="button"><svg><use href="#icon-copy"></use></svg>复制凭证</button>
@@ -236,12 +250,12 @@
       <footer class="control-dock">
         <div class="dock-context">
           <span class="dock-status" id="dockStatus">准备就绪</span>
-          <span id="dockMessage">选择场景或调整请求，然后运行付款前预检。</span>
+          <span id="dockMessage">选择一个失败场景，运行本地确定性测试。</span>
         </div>
         <div class="dock-actions">
           <button class="dock-back" id="backButton" type="button" hidden>返回</button>
           <button class="primary-button" id="primaryAction" type="button">
-            <svg><use href="#icon-play"></use></svg><span>开始付款前预检</span>
+            <svg><use href="#icon-play"></use></svg><span>运行这个失败测试</span>
           </button>
         </div>
       </footer>
@@ -249,7 +263,7 @@
 
     <dialog class="drawer scenario-drawer" id="scenarioDialog">
       <div class="drawer-header">
-        <div><p class="overline">SCENARIO LIBRARY</p><h2>选择一个风险场景</h2><p>每个场景只改变一个关键条件，便于解释决定为何变化。</p></div>
+        <div><p class="overline">FAILURE SCENARIO LIBRARY</p><h2>选择一个 Agent 支付失败场景</h2><p>每个 fixture 只改变一个关键条件，用来验证策略能否稳定发现问题。</p></div>
         <button class="close-button" data-close-dialog="scenarioDialog" type="button" aria-label="关闭场景选择"><svg><use href="#icon-x"></use></svg></button>
       </div>
       <div class="scenario-grid" id="scenarioGrid"></div>
@@ -257,7 +271,7 @@
 
     <dialog class="drawer edit-drawer" id="editDialog">
       <div class="drawer-header">
-        <div><p class="overline">EDIT PAYMENT REQUEST</p><h2>调整支付请求</h2><p>修改后需要重新运行预检，旧决定不会被沿用。</p></div>
+        <div><p class="overline">EDIT TEST INPUT</p><h2>调整模拟支付请求</h2><p>修改 fixture 后需要重新运行测试，旧结果不会被沿用。</p></div>
         <button class="close-button" data-close-dialog="editDialog" type="button" aria-label="关闭请求编辑"><svg><use href="#icon-x"></use></svg></button>
       </div>
       <form method="dialog" id="editForm">
