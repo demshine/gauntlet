@@ -38,7 +38,7 @@ Gauntlet is actively seeking external validation; review the [validation goals](
 open demo/index.html
 ```
 
-演示页面以「Agent 请求 → 报价核对 → 策略判断 → 脱敏凭证」呈现同一套支付预检模型。可以切换内置风险场景、修改金额和商户、运行逐项检查，并在技术证据区查看策略、请求快照、脱敏凭证和开发报告。
+演示页面采用单舞台导演模式，按「支付请求 → 规则预检 → 支付决定 → 审计凭证」推进。可以切换内置风险场景、修改金额和商户、观看八项规则逐项检查，并在最后查看策略、请求快照、脱敏凭证和开发报告。
 
 ## Development
 

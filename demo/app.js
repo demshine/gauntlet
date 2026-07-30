@@ -72,15 +72,17 @@ const scenarios = [
   {
     id: "valid-mcp-paid-tool-payment",
     title: "正常工具支付",
-    short: "基线场景",
-    description: "一笔符合当前策略的 MCP 工具调用付款。",
+    short: "建立正常基线",
+    description: "请求、报价、商户和任务历史均符合当前策略。",
+    trigger: "2.00 USDC · 允许商户",
     patch: {}
   },
   {
     id: "manual-review-threshold",
     title: "触发人工复核",
-    short: "三态演示",
+    short: "展示三态决定",
     description: "金额未超过硬性上限，但已超过 Agent 的自主支付阈值。",
+    trigger: "自主额度 3 → 请求 4 USDC",
     patch: {
       quote: { quoted_amount: 4, final_amount: 4, drift_amount: 0, drift_percentage: 0 },
       request: { amount: 4 }
@@ -89,22 +91,25 @@ const scenarios = [
   {
     id: "amount-exceeds-single-payment-limit",
     title: "单笔金额超限",
-    short: "金额风险",
+    short: "超过硬性上限",
     description: "Agent 尝试支付超过单笔策略上限的金额。",
+    trigger: "单笔上限 5 → 请求 8 USDC",
     patch: { request: { amount: 8 } }
   },
   {
     id: "cumulative-budget-exceeded",
     title: "任务预算不足",
-    short: "累计风险",
+    short: "累计支出超额",
     description: "单笔金额不高，但任务累计支出将超过预算。",
+    trigger: "已支出 19 + 本次 2 USDC",
     patch: { history: { total_amount_spent: 19 } }
   },
   {
     id: "blocked-merchant",
     title: "命中禁用商户",
-    short: "商户风险",
+    short: "对手方不允许",
     description: "付款目标是策略明确禁止的商户。",
+    trigger: "允许商户 → 禁用商户",
     patch: {
       request: {
         merchant: {
@@ -119,22 +124,25 @@ const scenarios = [
   {
     id: "wrong-token-or-currency",
     title: "币种不一致",
-    short: "资产风险",
+    short: "结算资产冲突",
     description: "报价使用 USDC，但请求换成了其他结算币种。",
+    trigger: "报价 USDC → 请求 EUR",
     patch: { request: { currency: "EUR", token: "EUR" } }
   },
   {
     id: "quote-expired",
     title: "报价已经过期",
-    short: "时效风险",
+    short: "时效边界失效",
     description: "付款请求到达时，原始报价已不再有效。",
+    trigger: "10:01 过期 → 10:05 请求",
     patch: { quote: { expires_at: "2026-06-23T10:01:00Z" } }
   },
   {
     id: "amount-drift-above-threshold",
     title: "报价金额漂移",
-    short: "重点演示",
+    short: "推荐开场场景",
     description: "最终金额相较原报价上涨 25%，超过策略允许的 10%。",
+    trigger: "2.00 → 2.50 USDC · +25%",
     patch: {
       quote: { final_amount: 2.5, drift_amount: 0.5, drift_percentage: 25 },
       request: { amount: 2.5 }
@@ -143,8 +151,9 @@ const scenarios = [
   {
     id: "duplicate-idempotency-key",
     title: "疑似重复支付",
-    short: "重试风险",
+    short: "安全处理重试",
     description: "重试请求复用了当前任务已经出现过的幂等键。",
+    trigger: "idem_123 首次 → 已使用",
     patch: { history: { used_idempotency_keys: ["idem_123"] } }
   }
 ];
@@ -167,35 +176,41 @@ const reasonCopy = {
 
 const checkDefinitions = [
   {
+    id: "metadata",
+    label: "必要支付信息",
+    rule: ({ policy }) => `${policy.required_metadata.length} 个字段完整`,
+    reasons: ["missing_required_metadata"]
+  },
+  {
     id: "amount",
-    label: "单笔金额",
-    rule: ({ policy }) => `不高于 ${policy.max_amount_per_payment} ${policy.currency}`,
+    label: "单笔金额上限",
+    rule: ({ policy }) => `请求不高于 ${policy.max_amount_per_payment} ${policy.currency}`,
     reasons: ["amount_exceeds_single_payment_limit"]
   },
   {
     id: "budget",
     label: "任务累计预算",
     rule: ({ policy, history, request }) =>
-      `${formatAmount(history.total_amount_spent + request.amount)} / ${policy.max_total_budget} ${policy.currency}`,
+      `${formatAmount(history.total_amount_spent + request.amount)} / ${formatAmount(policy.max_total_budget)} ${policy.currency}`,
     reasons: ["cumulative_budget_exceeded"]
   },
   {
     id: "merchant",
-    label: "商户范围",
+    label: "商户允许范围",
     rule: ({ request }) => request.merchant.canonical_merchant_id,
     reasons: ["blocked_merchant", "merchant_not_allowed"]
   },
   {
     id: "asset",
-    label: "币种与网络",
+    label: "币种与支付网络",
     rule: ({ request }) => `${request.currency} · ${request.chain}`,
     reasons: ["currency_mismatch", "token_mismatch", "chain_mismatch"]
   },
   {
     id: "expiry",
-    label: "报价有效期",
+    label: "策略与报价时效",
     rule: ({ request, quote }) =>
-      new Date(request.created_at) > new Date(quote.expires_at) ? "已过期" : "仍在有效期内",
+      new Date(request.created_at) > new Date(quote.expires_at) ? "报价已过期" : "报价仍在有效期内",
     reasons: ["policy_expired", "quote_expired"]
   },
   {
@@ -208,160 +223,246 @@ const checkDefinitions = [
   {
     id: "idempotency",
     label: "重复支付检查",
-    rule: ({ history }) => history.used_idempotency_keys.length > 0 ? "发现历史重复键" : "未发现重复键",
+    rule: ({ history }) => history.used_idempotency_keys.length > 0 ? "发现已使用的幂等键" : "未发现重复键",
     reasons: ["duplicate_idempotency_key"]
-  },
-  {
-    id: "metadata",
-    label: "必要支付信息",
-    rule: ({ policy }) => `${policy.required_metadata.length} 个字段完整`,
-    reasons: ["missing_required_metadata"]
   }
 ];
 
+const shortcutScenarioIds = [
+  "amount-drift-above-threshold",
+  "valid-mcp-paid-tool-payment",
+  "duplicate-idempotency-key",
+  "manual-review-threshold"
+];
+
 const els = {
-  scenarioList: document.querySelector("#scenarioList"),
-  simulation: document.querySelector(".simulation"),
-  runButton: document.querySelector("#runButton"),
+  scenarioIndex: document.querySelector("#scenarioIndex"),
+  scenarioTitle: document.querySelector("#scenarioTitle"),
+  scenarioShortcuts: document.querySelector("#scenarioShortcuts"),
+  scenarioGrid: document.querySelector("#scenarioGrid"),
+  scenarioDialog: document.querySelector("#scenarioDialog"),
+  editDialog: document.querySelector("#editDialog"),
+  openScenariosButton: document.querySelector("#openScenariosButton"),
+  editButton: document.querySelector("#editButton"),
+  editForm: document.querySelector("#editForm"),
+  applyEditButton: document.querySelector("#applyEditButton"),
   resetButton: document.querySelector("#resetButton"),
   amountInput: document.querySelector("#amountInput"),
   merchantInput: document.querySelector("#merchantInput"),
   quoteExpiryInput: document.querySelector("#quoteExpiryInput"),
+  editQuotedAmount: document.querySelector("#editQuotedAmount"),
+  editDrift: document.querySelector("#editDrift"),
+  scenarioDescription: document.querySelector("#scenarioDescription"),
+  requestIdLabel: document.querySelector("#requestIdLabel"),
   amountDisplay: document.querySelector("#amountDisplay"),
   currencyDisplay: document.querySelector("#currencyDisplay"),
   purposeDisplay: document.querySelector("#purposeDisplay"),
   merchantDisplay: document.querySelector("#merchantDisplay"),
-  policyChecks: document.querySelector("#policyChecks"),
-  decisionPanel: document.querySelector("#decisionPanel"),
-  decisionTime: document.querySelector("#decisionTime"),
-  decisionSymbol: document.querySelector("#decisionSymbol"),
-  decisionEyebrow: document.querySelector("#decisionEyebrow"),
-  decisionTitle: document.querySelector("#decisionTitle"),
-  decisionSummary: document.querySelector("#decisionSummary"),
-  reasonList: document.querySelector("#reasonList"),
-  receiptId: document.querySelector("#receiptId"),
-  evidenceLabel: document.querySelector("#evidenceLabel"),
-  evidenceFacts: document.querySelector("#evidenceFacts"),
+  causeBeforeLabel: document.querySelector("#causeBeforeLabel"),
+  quotedAmount: document.querySelector("#quotedAmount"),
+  causeAfterLabel: document.querySelector("#causeAfterLabel"),
+  finalAmount: document.querySelector("#finalAmount"),
+  deltaLabel: document.querySelector("#deltaLabel"),
+  deltaValue: document.querySelector("#deltaValue"),
+  boundaryLabel: document.querySelector("#boundaryLabel"),
+  boundaryValue: document.querySelector("#boundaryValue"),
+  networkFact: document.querySelector("#networkFact"),
+  budgetFact: document.querySelector("#budgetFact"),
+  expiryFact: document.querySelector("#expiryFact"),
+  scanQueue: document.querySelector("#scanQueue"),
+  checkProgressBar: document.querySelector("#checkProgressBar"),
+  checkProgressText: document.querySelector("#checkProgressText"),
+  resultHero: document.querySelector("#resultHero"),
+  resultIcon: document.querySelector("#resultIcon"),
+  resultEyebrow: document.querySelector("#resultEyebrow"),
+  resultTitle: document.querySelector("#resultTitle"),
+  resultSummary: document.querySelector("#resultSummary"),
+  primaryReason: document.querySelector("#primaryReason"),
+  primaryReasonCode: document.querySelector("#primaryReasonCode"),
+  decisionComparison: document.querySelector("#decisionComparison"),
+  toggleRulesButton: document.querySelector("#toggleRulesButton"),
+  toggleRulesText: document.querySelector("#toggleRulesText"),
+  ruleEvidence: document.querySelector("#ruleEvidence"),
+  ruleSummary: document.querySelector("#ruleSummary"),
+  resultRules: document.querySelector("#resultRules"),
+  receiptFacts: document.querySelector("#receiptFacts"),
   evidenceCode: document.querySelector("#evidenceCode"),
   copyButton: document.querySelector("#copyButton"),
+  downloadButton: document.querySelector("#downloadButton"),
+  primaryAction: document.querySelector("#primaryAction"),
+  backButton: document.querySelector("#backButton"),
+  dockStatus: document.querySelector("#dockStatus"),
+  dockMessage: document.querySelector("#dockMessage"),
   toast: document.querySelector("#toast")
 };
 
-let activeScenario = scenarios[0];
+let activeScenario = scenarios.find((scenario) => scenario.id === "amount-drift-above-threshold");
 let activeFixture = makeFixture(activeScenario);
+let activeScreen = "request";
+let activeTab = "receipt";
 let lastEvaluation = null;
-let activeTab = "policy";
-let runToken = 0;
 let visibleCheckCount = 0;
+let runToken = 0;
 let isRunning = false;
+let isCustom = false;
 
-buildScenarioList();
+buildScenarioControls();
 bindEvents();
 syncControlsFromFixture();
 render();
 
-function buildScenarioList() {
-  els.scenarioList.innerHTML = "";
+function buildScenarioControls() {
+  els.scenarioShortcuts.innerHTML = "";
+  shortcutScenarioIds.forEach((id) => {
+    const scenario = scenarios.find((item) => item.id === id);
+    const button = document.createElement("button");
+    button.className = "shortcut-button";
+    button.type = "button";
+    button.dataset.scenario = id;
+    button.textContent = scenario.title;
+    button.addEventListener("click", () => selectScenario(scenario));
+    els.scenarioShortcuts.append(button);
+  });
 
-  scenarios.forEach((scenario, index) => {
+  els.scenarioGrid.innerHTML = "";
+  scenarios.forEach((scenario) => {
     const evaluation = evaluate(makeFixture(scenario));
     const state = decisionState(evaluation.decision);
-    const outcome = state === "pass" ? "可放行" : state === "review" ? "需复核" : "将拦截";
+    const outcome = state === "pass" ? "符合策略" : state === "review" ? "人工复核" : "将被拦截";
     const button = document.createElement("button");
-    button.className = "scenario-button";
+    button.className = "scenario-card";
     button.type = "button";
     button.dataset.scenario = scenario.id;
     button.innerHTML = `
-      <span class="scenario-number">${String(index + 1).padStart(2, "0")}</span>
-      <span class="scenario-name"><strong>${scenario.title}</strong><small>${scenario.short}</small></span>
-      <span class="scenario-outcome ${state}">${outcome}</span>
+      <span class="scenario-card-head">
+        <span><strong>${scenario.title}</strong><small>${scenario.short}</small></span>
+        <span class="outcome-tag ${state}">${outcome}</span>
+      </span>
+      <span class="scenario-trigger">${iconHtml("arrow")} ${scenario.trigger}</span>
     `;
-    button.addEventListener("click", () => selectScenario(scenario));
-    els.scenarioList.append(button);
+    button.addEventListener("click", () => {
+      selectScenario(scenario);
+      els.scenarioDialog.close();
+    });
+    els.scenarioGrid.append(button);
   });
 }
 
 function bindEvents() {
-  els.runButton.addEventListener("click", runPreflight);
+  els.openScenariosButton.addEventListener("click", () => els.scenarioDialog.showModal());
+  els.editButton.addEventListener("click", () => {
+    syncControlsFromFixture();
+    renderEditPreview();
+    els.editDialog.showModal();
+  });
+
+  document.querySelectorAll("[data-close-dialog]").forEach((button) => {
+    button.addEventListener("click", () => document.querySelector(`#${button.dataset.closeDialog}`).close());
+  });
+
+  els.amountInput.addEventListener("input", renderEditPreview);
+  els.editForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    applyEdits();
+    els.editDialog.close();
+  });
   els.resetButton.addEventListener("click", resetFixture);
+  els.primaryAction.addEventListener("click", handlePrimaryAction);
+  els.backButton.addEventListener("click", handleBack);
+  els.toggleRulesButton.addEventListener("click", toggleRules);
+  els.copyButton.addEventListener("click", copyReceipt);
+  els.downloadButton.addEventListener("click", downloadReceipt);
 
-  els.amountInput.addEventListener("input", () => {
-    const amount = Number(els.amountInput.value);
-    activeFixture.request.amount = Number.isFinite(amount) ? amount : 0;
-    activeFixture.quote.final_amount = activeFixture.request.amount;
-    activeFixture.quote.drift_amount = round(activeFixture.request.amount - activeFixture.quote.quoted_amount);
-    activeFixture.quote.drift_percentage = round(
-      ((activeFixture.request.amount - activeFixture.quote.quoted_amount) /
-        activeFixture.quote.quoted_amount) *
-        100
-    );
-    markChanged();
-  });
-
-  els.merchantInput.addEventListener("change", () => {
-    const merchantId = els.merchantInput.value;
-    const displayNames = {
-      merchant_api_example: "Example MCP 工具服务",
-      merchant_blocked: "已禁用工具服务",
-      merchant_unknown: "未知工具服务"
-    };
-    activeFixture.request.merchant = {
-      ...activeFixture.request.merchant,
-      merchant_id: merchantId,
-      canonical_merchant_id: merchantId,
-      merchant_display_name: displayNames[merchantId]
-    };
-    markChanged();
-  });
-
-  els.quoteExpiryInput.addEventListener("change", () => {
-    activeFixture.quote.expires_at =
-      els.quoteExpiryInput.value === "expired"
-        ? "2026-06-23T10:01:00Z"
-        : "2026-06-23T10:10:00Z";
-    markChanged();
-  });
-
-  document.querySelectorAll(".tab").forEach((tab) => {
+  document.querySelectorAll(".document-tab").forEach((tab) => {
     tab.addEventListener("click", () => {
       activeTab = tab.dataset.tab;
-      document.querySelectorAll(".tab").forEach((item) => {
+      document.querySelectorAll(".document-tab").forEach((item) => {
         const selected = item === tab;
         item.classList.toggle("active", selected);
         item.setAttribute("aria-selected", String(selected));
       });
-      renderEvidence();
+      renderReceipt();
     });
   });
-
-  els.copyButton.addEventListener("click", copyReceipt);
 }
 
 function selectScenario(scenario) {
   cancelRun();
   activeScenario = scenario;
   activeFixture = makeFixture(scenario);
+  activeScreen = "request";
   lastEvaluation = null;
   visibleCheckCount = 0;
+  isCustom = false;
+  els.ruleEvidence.hidden = true;
+  els.toggleRulesButton.classList.remove("open");
   syncControlsFromFixture();
   render();
 }
 
 function resetFixture() {
-  cancelRun();
   activeFixture = makeFixture(activeScenario);
-  lastEvaluation = null;
-  visibleCheckCount = 0;
+  isCustom = false;
   syncControlsFromFixture();
-  render();
-  showToast("场景已恢复到初始状态");
+  renderEditPreview();
+  showToast("已恢复场景的初始请求");
 }
 
-function markChanged() {
+function applyEdits() {
+  const amount = Number(els.amountInput.value);
+  const merchantId = els.merchantInput.value;
+  const displayNames = {
+    merchant_api_example: "Example MCP 工具服务",
+    merchant_blocked: "已禁用工具服务",
+    merchant_unknown: "未知工具服务"
+  };
+
+  activeFixture.request.amount = Number.isFinite(amount) ? amount : 0;
+  activeFixture.quote.final_amount = activeFixture.request.amount;
+  activeFixture.quote.drift_amount = round(activeFixture.request.amount - activeFixture.quote.quoted_amount);
+  activeFixture.quote.drift_percentage = round(
+    ((activeFixture.request.amount - activeFixture.quote.quoted_amount) /
+      activeFixture.quote.quoted_amount) * 100
+  );
+  activeFixture.request.merchant = {
+    ...activeFixture.request.merchant,
+    merchant_id: merchantId,
+    canonical_merchant_id: merchantId,
+    merchant_display_name: displayNames[merchantId]
+  };
+  activeFixture.quote.expires_at =
+    els.quoteExpiryInput.value === "expired"
+      ? "2026-06-23T10:01:00Z"
+      : "2026-06-23T10:10:00Z";
+
   cancelRun();
+  activeScreen = "request";
   lastEvaluation = null;
   visibleCheckCount = 0;
+  isCustom = true;
   render();
+  showToast("请求已更新，请重新运行预检");
+}
+
+function handlePrimaryAction() {
+  if (activeScreen === "request") {
+    runPreflight();
+  } else if (activeScreen === "checking") {
+    finishPreflight();
+  } else if (activeScreen === "result") {
+    showScreen("receipt");
+  } else {
+    els.scenarioDialog.showModal();
+  }
+}
+
+function handleBack() {
+  if (activeScreen === "receipt") {
+    showScreen("result");
+  } else if (activeScreen === "result") {
+    lastEvaluation = null;
+    showScreen("request");
+  }
 }
 
 async function runPreflight() {
@@ -371,210 +472,260 @@ async function runPreflight() {
   isRunning = true;
   lastEvaluation = null;
   visibleCheckCount = 0;
-  els.runButton.disabled = true;
-  els.simulation.classList.add("running");
+  els.ruleEvidence.hidden = true;
+  els.toggleRulesButton.classList.remove("open");
+  document.querySelector(".result-screen").classList.remove("rules-open");
+  activeScreen = "checking";
   render();
 
   for (let index = 0; index < checkDefinitions.length; index += 1) {
     if (token !== runToken) return;
     visibleCheckCount = index + 1;
-    renderChecks(evaluate(activeFixture));
-    renderFlow(Math.min(2, Math.floor(index / 3)));
-    await delay(105);
+    renderChecking();
+    await delay(125);
   }
 
   if (token !== runToken) return;
-  await delay(180);
-  lastEvaluation = evaluate(activeFixture);
+  await delay(120);
+  finishPreflight();
+}
+
+function finishPreflight() {
+  runToken += 1;
   isRunning = false;
-  els.runButton.disabled = false;
-  els.simulation.classList.remove("running");
+  visibleCheckCount = checkDefinitions.length;
+  lastEvaluation = evaluate(activeFixture);
+  activeScreen = "result";
   render();
 }
 
 function cancelRun() {
   runToken += 1;
   isRunning = false;
-  els.runButton.disabled = false;
-  els.simulation.classList.remove("running");
+}
+
+function showScreen(screen) {
+  activeScreen = screen;
+  render();
+  document.querySelector(".stage").scrollTop = 0;
 }
 
 function render() {
-  document.querySelectorAll(".scenario-button").forEach((button) => {
+  document.querySelectorAll(".screen").forEach((screen) => {
+    screen.classList.toggle("active", screen.dataset.screen === activeScreen);
+  });
+  renderScenarioState();
+  renderProgress();
+  renderRequest();
+  renderChecking();
+  renderResult();
+  renderReceipt();
+  renderDock();
+}
+
+function renderScenarioState() {
+  const index = scenarios.indexOf(activeScenario) + 1;
+  els.scenarioIndex.textContent = `${String(index).padStart(2, "0")} / ${String(scenarios.length).padStart(2, "0")}`;
+  els.scenarioTitle.textContent = `${activeScenario.title}${isCustom ? " · 已自定义" : ""}`;
+
+  document.querySelectorAll("[data-scenario]").forEach((button) => {
     button.classList.toggle("active", button.dataset.scenario === activeScenario.id);
   });
+}
 
+function renderProgress() {
+  const order = ["request", "checking", "result", "receipt"];
+  const activeIndex = order.indexOf(activeScreen);
+  document.querySelectorAll(".progress-step").forEach((step, index) => {
+    step.classList.toggle("active", index === activeIndex);
+    step.classList.toggle("done", index < activeIndex);
+  });
+}
+
+function renderRequest() {
+  const causal = buildCausalFacts(activeFixture);
+  const expired = new Date(activeFixture.request.created_at) > new Date(activeFixture.quote.expires_at);
+  els.scenarioDescription.textContent = isCustom
+    ? "请求参数已经调整。运行预检后，Gauntlet 会基于当前输入重新生成决定。"
+    : activeScenario.description;
+  els.requestIdLabel.textContent = activeFixture.request.request_id.toUpperCase();
   els.amountDisplay.textContent = formatAmount(activeFixture.request.amount);
   els.currencyDisplay.textContent = activeFixture.request.currency;
   els.purposeDisplay.textContent = activeFixture.request.purpose;
   els.merchantDisplay.textContent = activeFixture.request.merchant.merchant_display_name;
-
-  const evaluation = evaluate(activeFixture);
-  renderChecks(evaluation);
-  renderFlow(lastEvaluation ? 3 : isRunning ? 1 : -1);
-  renderDecision();
-  renderEvidence();
+  els.causeBeforeLabel.textContent = causal.beforeLabel;
+  els.quotedAmount.textContent = causal.beforeValue;
+  els.causeAfterLabel.textContent = causal.afterLabel;
+  els.finalAmount.textContent = causal.afterValue;
+  els.deltaLabel.textContent = causal.deltaLabel;
+  els.deltaValue.textContent = causal.deltaValue;
+  els.boundaryLabel.textContent = causal.boundaryLabel;
+  els.boundaryValue.textContent = causal.boundaryValue;
+  els.networkFact.textContent = `${titleCase(activeFixture.request.chain)} · ${activeFixture.request.currency}`;
+  els.budgetFact.textContent = `${formatAmount(activeFixture.history.total_amount_spent + activeFixture.request.amount)} / ${formatAmount(activeFixture.policy.max_total_budget)} ${activeFixture.policy.currency}`;
+  els.expiryFact.textContent = expired ? "已过期" : "有效期内";
 }
 
-function renderChecks(evaluation) {
-  els.policyChecks.innerHTML = "";
+function renderChecking() {
+  const evaluation = evaluate(activeFixture);
+  els.checkProgressBar.style.width = `${(visibleCheckCount / checkDefinitions.length) * 100}%`;
+  els.checkProgressText.textContent = `${visibleCheckCount} / ${checkDefinitions.length}`;
+  els.scanQueue.innerHTML = "";
 
   checkDefinitions.forEach((check, index) => {
     const failed = check.reasons.some((reason) => evaluation.reason_codes.includes(reason));
-    const checked = Boolean(lastEvaluation) || index < visibleCheckCount;
-    const checking = isRunning && index === visibleCheckCount;
-    const state = checked ? (failed ? "fail" : "pass") : checking ? "pending" : "idle";
-    const stateText = checked ? (failed ? "未通过" : "符合") : checking ? "检查中" : "待检查";
-    const indicator = checked ? (failed ? "×" : "✓") : "";
-
+    const checked = index < visibleCheckCount;
+    const active = isRunning && index === visibleCheckCount;
+    const state = checked ? (failed ? "fail" : "pass") : active ? "active" : "idle";
+    const status = checked ? (failed ? "未通过" : "符合") : active ? "正在检查" : "等待";
+    const indicator = checked ? (failed ? "×" : "✓") : index + 1;
     const row = document.createElement("div");
-    row.className = `check-row ${state}`;
+    row.className = `scan-row ${state}`;
     row.innerHTML = `
-      <span class="check-indicator">${indicator}</span>
+      <span class="scan-state">${indicator}</span>
       <strong>${check.label}</strong>
-      <span class="check-rule">${check.rule(activeFixture)}</span>
-      <span class="check-state">${stateText}</span>
+      <span>${check.rule(activeFixture)}</span>
+      <em>${status}</em>
     `;
-    els.policyChecks.append(row);
+    els.scanQueue.append(row);
   });
 }
 
-function renderFlow(activeIndex) {
-  document.querySelectorAll(".flow-step").forEach((step, index) => {
-    step.classList.toggle("active", index === activeIndex);
-    step.classList.toggle("done", lastEvaluation ? true : index < activeIndex);
-  });
-}
-
-function renderDecision() {
-  if (isRunning) {
-    els.decisionPanel.className = "decision-panel running";
-    els.decisionTime.textContent = "正在评估";
-    els.decisionSymbol.textContent = "···";
-    els.decisionEyebrow.textContent = "确定性规则执行中";
-    els.decisionTitle.textContent = "正在检查";
-    els.decisionSummary.textContent = `已检查 ${visibleCheckCount} / ${checkDefinitions.length} 项规则，资金尚未移动。`;
-    els.reasonList.innerHTML = "<p>正在核对报价、策略、请求与任务历史…</p>";
-    els.receiptId.textContent = "生成中";
-    return;
-  }
-
-  if (!lastEvaluation) {
-    els.decisionPanel.className = "decision-panel idle";
-    els.decisionTime.textContent = "等待运行";
-    els.decisionSymbol.textContent = "G";
-    els.decisionEyebrow.textContent = "策略闸门";
-    els.decisionTitle.textContent = "等待预检";
-    els.decisionSummary.textContent = "运行后，Gauntlet 会在资金移动之前给出可解释的决定。";
-    els.reasonList.innerHTML = `<p>${activeScenario.description}</p>`;
-    els.receiptId.textContent = "待生成";
-    return;
-  }
+function renderResult() {
+  if (!lastEvaluation) return;
 
   const state = decisionState(lastEvaluation.decision);
-  const receipt = buildReceipt(activeFixture, lastEvaluation);
+  const reason = lastEvaluation.reason_codes[0] ?? "no_policy_violations";
+  const causal = buildCausalFacts(activeFixture);
   const view = {
     pass: {
-      symbol: "✓",
-      eyebrow: "满足已配置策略",
-      title: "可以继续",
-      summary: "八项本地检查均符合当前策略，可继续模拟支付流程。"
+      icon: "check",
+      eyebrow: "POLICY PASSED",
+      title: "符合当前策略",
+      summary: "8 项确定性检查均符合当前配置，可以继续模拟支付流程。"
     },
     fail: {
-      symbol: "×",
-      eyebrow: "违反已配置策略",
-      title: "已拦截支付",
+      icon: "x",
+      eyebrow: "POLICY FAILED",
+      title: "付款请求已拦截",
       summary: "Gauntlet 已在调用支付服务商之前停止这笔请求。"
     },
     review: {
-      symbol: "!",
-      eyebrow: "触发人工边界",
-      title: "转人工复核",
-      summary: "请求未违反硬性规则，但金额超过自主支付阈值。"
+      icon: "alert",
+      eyebrow: "HUMAN REVIEW REQUIRED",
+      title: "暂停，等待人工确认",
+      summary: "硬性规则均符合，但请求超过 Agent 的自主支付额度。"
     }
   }[state];
 
-  els.decisionPanel.className = `decision-panel ${state}`;
-  els.decisionTime.textContent = "评估完成 · 842ms";
-  els.decisionSymbol.textContent = view.symbol;
-  els.decisionEyebrow.textContent = view.eyebrow;
-  els.decisionTitle.textContent = view.title;
-  els.decisionSummary.textContent = view.summary;
-  els.receiptId.textContent = receipt.receipt_id;
+  els.resultHero.className = `result-hero ${state}`;
+  els.resultIcon.innerHTML = iconHtml(view.icon);
+  els.resultEyebrow.textContent = view.eyebrow;
+  els.resultTitle.textContent = view.title;
+  els.resultSummary.textContent = view.summary;
+  els.primaryReason.textContent = reason === "no_policy_violations"
+    ? "未发现违反当前配置策略的条件"
+    : reasonCopy[reason] ?? reason;
+  els.primaryReasonCode.textContent = reason;
+  els.primaryReasonCode.style.color = state === "pass" ? "var(--green)" : state === "review" ? "var(--amber)" : "var(--red)";
+  els.primaryReasonCode.style.background = state === "pass" ? "var(--green-soft)" : state === "review" ? "var(--amber-soft)" : "var(--red-soft)";
 
-  const reasons =
-    lastEvaluation.reason_codes.length > 0
-      ? lastEvaluation.reason_codes
-      : ["no_policy_violations"];
-  els.reasonList.innerHTML = "";
-  reasons.forEach((reason) => {
-    const item = document.createElement("p");
-    item.className = "reason-item";
-    item.textContent =
-      reason === "no_policy_violations"
-        ? "未发现违反当前配置策略的条件"
-        : reasonCopy[reason] ?? reason;
-    els.reasonList.append(item);
-  });
+  els.decisionComparison.innerHTML = [
+    [causal.beforeLabel, causal.beforeValue],
+    [causal.afterLabel, causal.afterValue],
+    [causal.boundaryLabel, causal.boundaryValue]
+  ].map(([label, value]) => `<div><small>${label}</small><strong>${value}</strong></div>`).join("");
+
+  renderResultRules();
 }
 
-function renderEvidence() {
-  const evaluation = lastEvaluation ?? evaluate(activeFixture);
-  const receipt = buildReceipt(activeFixture, evaluation);
+function renderResultRules() {
+  if (!lastEvaluation) return;
+  let failedCount = 0;
+  els.resultRules.innerHTML = "";
+  checkDefinitions.forEach((check, index) => {
+    const failed = check.reasons.some((reason) => lastEvaluation.reason_codes.includes(reason));
+    if (failed) failedCount += 1;
+    const row = document.createElement("div");
+    row.className = `result-rule ${failed ? "fail" : "pass"}`;
+    row.innerHTML = `
+      <span>${String(index + 1).padStart(2, "0")}</span>
+      <strong>${check.label}</strong>
+      <span>${check.rule(activeFixture)}</span>
+      <em>${failed ? "未通过" : "符合"}</em>
+    `;
+    els.resultRules.append(row);
+  });
+  els.ruleSummary.textContent = `${checkDefinitions.length - failedCount} 项符合 · ${failedCount} 项未通过`;
+}
+
+function toggleRules() {
+  const willOpen = els.ruleEvidence.hidden;
+  els.ruleEvidence.hidden = !willOpen;
+  els.toggleRulesButton.classList.toggle("open", willOpen);
+  els.toggleRulesText.textContent = willOpen ? "收起完整规则" : "查看全部 8 项检查";
+  document.querySelector(".result-screen").classList.toggle("rules-open", willOpen);
+}
+
+function renderReceipt() {
+  if (!lastEvaluation) return;
+  const receipt = buildReceipt(activeFixture, lastEvaluation);
   const requestSnapshot = {
     quote: activeFixture.quote,
     payment_request: activeFixture.request,
     history: activeFixture.history
   };
   const views = {
-    policy: {
-      label: "当前生效的支付边界",
-      facts: [
-        ["策略 ID", activeFixture.policy.policy_id],
-        ["单笔上限", `${activeFixture.policy.max_amount_per_payment} USDC`],
-        ["任务预算", `${activeFixture.policy.max_total_budget} USDC`],
-        ["报价漂移", `≤ ${activeFixture.policy.max_quote_drift_percentage}%`]
-      ],
-      content: pretty(activeFixture.policy)
-    },
+    receipt: pretty(receipt),
+    report: buildReport(activeFixture, lastEvaluation),
+    request: pretty(requestSnapshot),
+    policy: pretty(activeFixture.policy)
+  };
+  els.receiptFacts.innerHTML = [
+    ["凭证 ID", receipt.receipt_id],
+    ["最终决定", decisionLabel(lastEvaluation.decision)],
+    ["策略版本", `${activeFixture.policy.policy_id} · v${activeFixture.policy.version}`],
+    ["脱敏字段", "session_id, idempotency_key"]
+  ].map(([term, value]) => `<div><dt>${term}</dt><dd>${value}</dd></div>`).join("");
+  els.evidenceCode.textContent = views[activeTab];
+}
+
+function renderDock() {
+  const config = {
     request: {
-      label: "本次预检使用的输入快照",
-      facts: [
-        ["请求 ID", activeFixture.request.request_id],
-        ["Agent", activeFixture.request.agent_id],
-        ["收款方", activeFixture.request.merchant.canonical_merchant_id],
-        ["支付金额", `${formatAmount(activeFixture.request.amount)} ${activeFixture.request.currency}`]
-      ],
-      content: pretty(requestSnapshot)
+      status: isCustom ? "请求已修改" : "准备就绪",
+      message: isCustom ? "当前参数不同于场景初始值，需要重新预检。" : "请求已准备，资金尚未移动。",
+      action: "开始付款前预检",
+      icon: "play",
+      back: false
+    },
+    checking: {
+      status: "正在预检",
+      message: `已完成 ${visibleCheckCount} / ${checkDefinitions.length} 项确定性检查。`,
+      action: "立即显示结果",
+      icon: "shield",
+      back: false
+    },
+    result: {
+      status: decisionLabel(lastEvaluation?.decision),
+      message: "决定已经生成，可以继续查看脱敏审计凭证。",
+      action: "查看脱敏凭证",
+      icon: "file",
+      back: true
     },
     receipt: {
-      label: "可进入 CI、PR 或复盘的脱敏凭证",
-      facts: [
-        ["凭证 ID", receipt.receipt_id],
-        ["决策", decisionLabel(evaluation.decision)],
-        ["脱敏模式", "default"],
-        ["脱敏字段", "session_id, idempotency_key"]
-      ],
-      content: pretty(receipt)
-    },
-    report: {
-      label: "面向开发者的可读决策报告",
-      facts: [
-        ["场景", activeScenario.title],
-        ["结论", decisionLabel(evaluation.decision)],
-        ["原因数量", String(evaluation.reason_codes.length)],
-        ["输出格式", "Markdown"]
-      ],
-      content: buildReport(activeFixture, evaluation)
+      status: "凭证已生成",
+      message: "敏感字段已按默认规则脱敏。",
+      action: "演示下一个场景",
+      icon: "list",
+      back: true
     }
-  };
+  }[activeScreen];
 
-  const view = views[activeTab];
-  els.evidenceLabel.textContent = view.label;
-  els.evidenceFacts.innerHTML = view.facts
-    .map(([term, value]) => `<div><dt>${term}</dt><dd>${value}</dd></div>`)
-    .join("");
-  els.evidenceCode.textContent = view.content;
+  els.dockStatus.textContent = config.status;
+  els.dockMessage.textContent = config.message;
+  els.primaryAction.innerHTML = `${iconHtml(config.icon)}<span>${config.action}</span>`;
+  els.backButton.hidden = !config.back;
 }
 
 function syncControlsFromFixture() {
@@ -584,63 +735,157 @@ function syncControlsFromFixture() {
     new Date(activeFixture.request.created_at) > new Date(activeFixture.quote.expires_at)
       ? "expired"
       : "valid";
+  renderEditPreview();
+}
+
+function renderEditPreview() {
+  const amount = Number(els.amountInput.value) || 0;
+  const drift = round(((amount - activeFixture.quote.quoted_amount) / activeFixture.quote.quoted_amount) * 100);
+  els.editQuotedAmount.textContent = `${formatAmount(activeFixture.quote.quoted_amount)} ${activeFixture.quote.quoted_currency}`;
+  els.editDrift.textContent = `${drift >= 0 ? "+" : ""}${formatAmount(drift)}%`;
+}
+
+function buildCausalFacts({ policy, quote, request, history }) {
+  const evaluation = evaluate({ policy, quote, request, history });
+  const reasons = evaluation.reason_codes;
+
+  if (reasons.includes("amount_exceeds_single_payment_limit")) {
+    return {
+      beforeLabel: "单笔策略上限",
+      beforeValue: `${formatAmount(policy.max_amount_per_payment)} ${policy.currency}`,
+      afterLabel: "当前支付请求",
+      afterValue: `${formatAmount(request.amount)} ${request.currency}`,
+      deltaLabel: "超出额度",
+      deltaValue: `+${formatAmount(request.amount - policy.max_amount_per_payment)} ${policy.currency}`,
+      boundaryLabel: "硬性边界",
+      boundaryValue: `请求 ≤ ${formatAmount(policy.max_amount_per_payment)} ${policy.currency}`
+    };
+  }
+  if (reasons.includes("cumulative_budget_exceeded")) {
+    return {
+      beforeLabel: "任务已支出",
+      beforeValue: `${formatAmount(history.total_amount_spent)} ${policy.currency}`,
+      afterLabel: "加上本次请求",
+      afterValue: `${formatAmount(history.total_amount_spent + request.amount)} ${policy.currency}`,
+      deltaLabel: "本次金额",
+      deltaValue: `+${formatAmount(request.amount)} ${request.currency}`,
+      boundaryLabel: "任务预算",
+      boundaryValue: `累计 ≤ ${formatAmount(policy.max_total_budget)} ${policy.currency}`
+    };
+  }
+  if (reasons.includes("blocked_merchant") || reasons.includes("merchant_not_allowed")) {
+    return {
+      beforeLabel: "策略允许商户",
+      beforeValue: "merchant_api_example",
+      afterLabel: "当前收款方",
+      afterValue: request.merchant.canonical_merchant_id,
+      deltaLabel: "商户状态",
+      deltaValue: reasons.includes("blocked_merchant") ? "命中禁用名单" : "不在允许范围",
+      boundaryLabel: "对手方规则",
+      boundaryValue: "仅允许白名单商户"
+    };
+  }
+  if (reasons.includes("currency_mismatch") || reasons.includes("token_mismatch")) {
+    return {
+      beforeLabel: "策略与报价币种",
+      beforeValue: policy.currency,
+      afterLabel: "当前请求币种",
+      afterValue: request.currency,
+      deltaLabel: "资产变化",
+      deltaValue: `${policy.currency} → ${request.currency}`,
+      boundaryLabel: "资产规则",
+      boundaryValue: "币种必须完全一致"
+    };
+  }
+  if (reasons.includes("quote_expired") || reasons.includes("policy_expired")) {
+    return {
+      beforeLabel: "报价有效期至",
+      beforeValue: formatTime(quote.expires_at),
+      afterLabel: "付款请求时间",
+      afterValue: formatTime(request.created_at),
+      deltaLabel: "时效状态",
+      deltaValue: "报价已过期",
+      boundaryLabel: "时效规则",
+      boundaryValue: "请求必须在有效期内"
+    };
+  }
+  if (reasons.includes("quote_amount_drift_exceeded") || quote.drift_percentage !== 0) {
+    return {
+      beforeLabel: "原始报价",
+      beforeValue: `${formatAmount(quote.quoted_amount)} ${quote.quoted_currency}`,
+      afterLabel: "最终支付请求",
+      afterValue: `${formatAmount(request.amount)} ${request.currency}`,
+      deltaLabel: "金额变化",
+      deltaValue: `${quote.drift_percentage >= 0 ? "+" : ""}${formatAmount(quote.drift_percentage)}%`,
+      boundaryLabel: "报价漂移边界",
+      boundaryValue: `允许变化 ≤ ${policy.max_quote_drift_percentage}%`
+    };
+  }
+  if (reasons.includes("duplicate_idempotency_key")) {
+    return {
+      beforeLabel: "幂等键初始状态",
+      beforeValue: "未使用",
+      afterLabel: "当前请求幂等键",
+      afterValue: request.idempotency_key,
+      deltaLabel: "历史比对",
+      deltaValue: "已发现相同键",
+      boundaryLabel: "重试规则",
+      boundaryValue: "同一任务中不可复用"
+    };
+  }
+  if (evaluation.decision === "requires_review") {
+    return {
+      beforeLabel: "Agent 自主额度",
+      beforeValue: `${formatAmount(policy.requires_review_above)} ${policy.currency}`,
+      afterLabel: "当前支付请求",
+      afterValue: `${formatAmount(request.amount)} ${request.currency}`,
+      deltaLabel: "超过自主额度",
+      deltaValue: `+${formatAmount(request.amount - policy.requires_review_above)} ${policy.currency}`,
+      boundaryLabel: "人工复核区间",
+      boundaryValue: `${formatAmount(policy.requires_review_above)}–${formatAmount(policy.max_amount_per_payment)} ${policy.currency}`
+    };
+  }
+  return {
+    beforeLabel: "原始报价",
+    beforeValue: `${formatAmount(quote.quoted_amount)} ${quote.quoted_currency}`,
+    afterLabel: "最终支付请求",
+    afterValue: `${formatAmount(request.amount)} ${request.currency}`,
+    deltaLabel: "金额变化",
+    deltaValue: `${quote.drift_percentage >= 0 ? "+" : ""}${formatAmount(quote.drift_percentage)}%`,
+    boundaryLabel: "报价漂移边界",
+    boundaryValue: `允许变化 ≤ ${policy.max_quote_drift_percentage}%`
+  };
 }
 
 function evaluate({ policy, quote, request, history }) {
   const reasonCodes = [];
-
-  if (request.amount > policy.max_amount_per_payment) {
-    reasonCodes.push("amount_exceeds_single_payment_limit");
-  }
-  if (history.total_amount_spent + request.amount > policy.max_total_budget) {
-    reasonCodes.push("cumulative_budget_exceeded");
-  }
+  if (request.amount > policy.max_amount_per_payment) reasonCodes.push("amount_exceeds_single_payment_limit");
+  if (history.total_amount_spent + request.amount > policy.max_total_budget) reasonCodes.push("cumulative_budget_exceeded");
   if (policy.blocked_merchants.includes(request.merchant.canonical_merchant_id)) {
     reasonCodes.push("blocked_merchant");
   } else if (!policy.allowed_merchants.includes(request.merchant.canonical_merchant_id)) {
     reasonCodes.push("merchant_not_allowed");
   }
-  if (request.currency !== policy.currency || quote.quoted_currency !== policy.currency) {
-    reasonCodes.push("currency_mismatch");
-  }
-  if (request.token !== policy.currency) {
-    reasonCodes.push("token_mismatch");
-  }
-  if (request.chain !== policy.chain) {
-    reasonCodes.push("chain_mismatch");
-  }
-  if (new Date(request.created_at) > new Date(policy.expires_at)) {
-    reasonCodes.push("policy_expired");
-  }
-  if (new Date(request.created_at) > new Date(quote.expires_at)) {
-    reasonCodes.push("quote_expired");
-  }
-  if (Math.abs(quote.drift_percentage) > policy.max_quote_drift_percentage) {
-    reasonCodes.push("quote_amount_drift_exceeded");
-  }
-  if (history.used_idempotency_keys.includes(request.idempotency_key)) {
-    reasonCodes.push("duplicate_idempotency_key");
-  }
-  if (policy.required_metadata.some((field) => !request.metadata[field])) {
-    reasonCodes.push("missing_required_metadata");
-  }
-
-  if (reasonCodes.length > 0) {
-    return { decision: "policy_failed", reason_codes: reasonCodes };
-  }
-  if (request.amount > policy.requires_review_above) {
-    return { decision: "requires_review", reason_codes: ["review_threshold_exceeded"] };
-  }
+  if (request.currency !== policy.currency || quote.quoted_currency !== policy.currency) reasonCodes.push("currency_mismatch");
+  if (request.token !== policy.currency) reasonCodes.push("token_mismatch");
+  if (request.chain !== policy.chain) reasonCodes.push("chain_mismatch");
+  if (new Date(request.created_at) > new Date(policy.expires_at)) reasonCodes.push("policy_expired");
+  if (new Date(request.created_at) > new Date(quote.expires_at)) reasonCodes.push("quote_expired");
+  if (Math.abs(quote.drift_percentage) > policy.max_quote_drift_percentage) reasonCodes.push("quote_amount_drift_exceeded");
+  if (history.used_idempotency_keys.includes(request.idempotency_key)) reasonCodes.push("duplicate_idempotency_key");
+  if (policy.required_metadata.some((field) => !request.metadata[field])) reasonCodes.push("missing_required_metadata");
+  if (reasonCodes.length > 0) return { decision: "policy_failed", reason_codes: reasonCodes };
+  if (request.amount > policy.requires_review_above) return { decision: "requires_review", reason_codes: ["review_threshold_exceeded"] };
   return { decision: "policy_passed", reason_codes: [] };
 }
 
 function buildReceipt({ scenario, policy, quote, request }, evaluation) {
   const scenarioNumber = scenarios.findIndex((item) => item.id === scenario.id) + 1;
   return {
-    receipt_id: `GTL-20260723-${String(scenarioNumber).padStart(2, "0")}A`,
+    receipt_id: `GTL-20260730-${String(scenarioNumber).padStart(2, "0")}A`,
     decision: evaluation.decision,
     reason_codes: evaluation.reason_codes,
-    evaluated_at: "2026-07-23T10:05:02+08:00",
+    evaluated_at: "2026-07-30T10:05:02+08:00",
     scenario_id: scenario.id,
     redaction: {
       mode: "default",
@@ -672,13 +917,9 @@ function buildReceipt({ scenario, policy, quote, request }, evaluation) {
 }
 
 function buildReport({ scenario, request }, evaluation) {
-  const reasons =
-    evaluation.reason_codes.length > 0
-      ? evaluation.reason_codes
-          .map((reason) => `- ${reasonCopy[reason] ?? reason} (${reason})`)
-          .join("\n")
-      : "- 未发现违反当前配置策略的条件";
-
+  const reasons = evaluation.reason_codes.length > 0
+    ? evaluation.reason_codes.map((reason) => `- ${reasonCopy[reason] ?? reason} (${reason})`).join("\n")
+    : "- 未发现违反当前配置策略的条件";
   return `# Gauntlet 支付预检报告
 
 场景：${scenario.title}
@@ -699,15 +940,13 @@ Gauntlet 在任何支付服务商调用发生前执行本地确定性检查。�
 }
 
 async function copyReceipt() {
-  const evaluation = lastEvaluation ?? evaluate(activeFixture);
-  const text = pretty(buildReceipt(activeFixture, evaluation));
-
+  const receipt = pretty(buildReceipt(activeFixture, lastEvaluation));
   try {
     if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(receipt);
     } else {
       const textarea = document.createElement("textarea");
-      textarea.value = text;
+      textarea.value = receipt;
       textarea.style.position = "fixed";
       textarea.style.opacity = "0";
       document.body.append(textarea);
@@ -715,10 +954,22 @@ async function copyReceipt() {
       document.execCommand("copy");
       textarea.remove();
     }
-    showToast("当前脱敏凭证已复制");
+    showToast("脱敏凭证已复制");
   } catch {
-    showToast("浏览器未允许复制，请在“脱敏凭证”中手动选择");
+    showToast("浏览器未允许复制，请在凭证窗口中手动选择");
   }
+}
+
+function downloadReceipt() {
+  const receipt = pretty(buildReceipt(activeFixture, lastEvaluation));
+  const blob = new Blob([receipt], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${buildReceipt(activeFixture, lastEvaluation).receipt_id}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast("脱敏凭证已下载");
 }
 
 function showToast(message) {
@@ -741,11 +992,9 @@ function makeFixture(scenario) {
 function mergeDeep(base, patch) {
   const output = clone(base);
   for (const [key, value] of Object.entries(patch)) {
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      output[key] = mergeDeep(output[key] ?? {}, value);
-    } else {
-      output[key] = value;
-    }
+    output[key] = value && typeof value === "object" && !Array.isArray(value)
+      ? mergeDeep(output[key] ?? {}, value)
+      : value;
   }
   return output;
 }
@@ -757,16 +1006,25 @@ function decisionState(decision) {
 }
 
 function decisionLabel(decision) {
-  if (decision === "policy_failed") return "已拦截支付";
-  if (decision === "requires_review") return "转人工复核";
-  return "满足当前策略";
+  if (decision === "policy_failed") return "付款请求已拦截";
+  if (decision === "requires_review") return "等待人工确认";
+  return "符合当前策略";
+}
+
+function iconHtml(name) {
+  return `<svg aria-hidden="true"><use href="#icon-${name}"></use></svg>`;
 }
 
 function formatAmount(value) {
-  return Number(value).toLocaleString("zh-CN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
+  return Number(value).toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatTime(value) {
+  return new Intl.DateTimeFormat("zh-CN", { hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(value));
+}
+
+function titleCase(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function pretty(value) {
