@@ -133,7 +133,7 @@ const scenarios = [
     id: "quote-expired",
     title: "报价已经过期",
     short: "时效边界失效",
-    description: "付款请求到达时，原始报价已不再有效。",
+    description: "模拟请求发生时，原始报价已不再有效。",
     trigger: "10:01 过期 → 10:05 请求",
     patch: { quote: { expires_at: "2026-06-23T10:01:00Z" } }
   },
@@ -151,7 +151,7 @@ const scenarios = [
   {
     id: "duplicate-idempotency-key",
     title: "疑似重复支付",
-    short: "安全处理重试",
+    short: "验证重复重试",
     description: "重试请求复用了当前任务已经出现过的幂等键。",
     trigger: "idem_123 首次 → 已使用",
     patch: { history: { used_idempotency_keys: ["idem_123"] } }
@@ -167,7 +167,7 @@ const reasonCopy = {
   token_mismatch: "结算资产与策略要求不一致",
   chain_mismatch: "支付网络与策略要求不一致",
   policy_expired: "当前支付策略已过有效期",
-  quote_expired: "付款请求发生时，原始报价已经过期",
+  quote_expired: "模拟请求发生时，原始报价已经过期",
   quote_amount_drift_exceeded: "最终金额相对报价的变化超过 10%",
   duplicate_idempotency_key: "当前任务中已使用过相同的幂等键",
   missing_required_metadata: "支付请求缺少策略要求的必要信息",
@@ -253,6 +253,7 @@ const els = {
   editQuotedAmount: document.querySelector("#editQuotedAmount"),
   editDrift: document.querySelector("#editDrift"),
   scenarioDescription: document.querySelector("#scenarioDescription"),
+  caseTitle: document.querySelector("#caseTitle"),
   requestIdLabel: document.querySelector("#requestIdLabel"),
   amountDisplay: document.querySelector("#amountDisplay"),
   currencyDisplay: document.querySelector("#currencyDisplay"),
@@ -328,7 +329,7 @@ function buildScenarioControls() {
   scenarios.forEach((scenario) => {
     const evaluation = evaluate(makeFixture(scenario));
     const state = decisionState(evaluation.decision);
-    const outcome = state === "pass" ? "符合策略" : state === "review" ? "人工复核" : "将被拦截";
+    const outcome = state === "pass" ? "符合策略" : state === "review" ? "需要复核" : "违反策略";
     const button = document.createElement("button");
     button.className = "scenario-card";
     button.type = "button";
@@ -441,7 +442,7 @@ function applyEdits() {
   visibleCheckCount = 0;
   isCustom = true;
   render();
-  showToast("请求已更新，请重新运行预检");
+  showToast("测试输入已更新，请重新运行测试");
 }
 
 function handlePrimaryAction() {
@@ -546,8 +547,9 @@ function renderRequest() {
   const causal = buildCausalFacts(activeFixture);
   const expired = new Date(activeFixture.request.created_at) > new Date(activeFixture.quote.expires_at);
   els.scenarioDescription.textContent = isCustom
-    ? "请求参数已经调整。运行预检后，Gauntlet 会基于当前输入重新生成决定。"
+    ? "模拟请求已经调整。Gauntlet 将基于当前 fixture 重新执行规则并生成测试结果。"
     : activeScenario.description;
+  els.caseTitle.textContent = `${activeScenario.title}${isCustom ? " · 自定义输入" : ""}`;
   els.requestIdLabel.textContent = activeFixture.request.request_id.toUpperCase();
   els.amountDisplay.textContent = formatAmount(activeFixture.request.amount);
   els.currencyDisplay.textContent = activeFixture.request.currency;
@@ -601,20 +603,20 @@ function renderResult() {
     pass: {
       icon: "check",
       eyebrow: "POLICY PASSED",
-      title: "符合当前策略",
-      summary: "8 项确定性检查均符合当前配置，可以继续模拟支付流程。"
+      title: "测试结果：符合当前策略",
+      summary: "该 fixture 的 8 项确定性检查均符合当前配置。"
     },
     fail: {
       icon: "x",
       eyebrow: "POLICY FAILED",
-      title: "付款请求已拦截",
-      summary: "Gauntlet 已在调用支付服务商之前停止这笔请求。"
+      title: "测试结果：违反当前策略",
+      summary: "该模拟支付请求命中了当前策略中的失败条件。"
     },
     review: {
       icon: "alert",
       eyebrow: "HUMAN REVIEW REQUIRED",
-      title: "暂停，等待人工确认",
-      summary: "硬性规则均符合，但请求超过 Agent 的自主支付额度。"
+      title: "测试结果：需要人工复核",
+      summary: "硬性规则均符合，但该 fixture 超过 Agent 的自主支付阈值。"
     }
   }[state];
 
@@ -693,14 +695,14 @@ function renderReceipt() {
 function renderDock() {
   const config = {
     request: {
-      status: isCustom ? "请求已修改" : "准备就绪",
-      message: isCustom ? "当前参数不同于场景初始值，需要重新预检。" : "请求已准备，资金尚未移动。",
-      action: "开始付款前预检",
+      status: isCustom ? "测试输入已修改" : "测试场景已就绪",
+      message: isCustom ? "当前输入不同于场景初始 fixture，需要重新运行测试。" : "本地 fixture 已准备，不会连接钱包或移动资金。",
+      action: "运行这个失败测试",
       icon: "play",
       back: false
     },
     checking: {
-      status: "正在预检",
+      status: "正在执行测试",
       message: `已完成 ${visibleCheckCount} / ${checkDefinitions.length} 项确定性检查。`,
       action: "立即显示结果",
       icon: "shield",
@@ -708,15 +710,15 @@ function renderDock() {
     },
     result: {
       status: decisionLabel(lastEvaluation?.decision),
-      message: "决定已经生成，可以继续查看脱敏审计凭证。",
-      action: "查看脱敏凭证",
+      message: "验证结果与原因码已生成，可以继续查看脱敏测试凭证。",
+      action: "查看测试凭证",
       icon: "file",
       back: true
     },
     receipt: {
-      status: "凭证已生成",
-      message: "敏感字段已按默认规则脱敏。",
-      action: "演示下一个场景",
+      status: "测试凭证已生成",
+      message: "测试输入、规则轨迹和结果已记录，敏感字段已脱敏。",
+      action: "选择下一个测试场景",
       icon: "list",
       back: true
     }
@@ -801,7 +803,7 @@ function buildCausalFacts({ policy, quote, request, history }) {
     return {
       beforeLabel: "报价有效期至",
       beforeValue: formatTime(quote.expires_at),
-      afterLabel: "付款请求时间",
+      afterLabel: "模拟请求时间",
       afterValue: formatTime(request.created_at),
       deltaLabel: "时效状态",
       deltaValue: "报价已过期",
@@ -920,7 +922,7 @@ function buildReport({ scenario, request }, evaluation) {
   const reasons = evaluation.reason_codes.length > 0
     ? evaluation.reason_codes.map((reason) => `- ${reasonCopy[reason] ?? reason} (${reason})`).join("\n")
     : "- 未发现违反当前配置策略的条件";
-  return `# Gauntlet 支付预检报告
+  return `# Gauntlet Agent 支付失败测试报告
 
 场景：${scenario.title}
 说明：${scenario.description}
@@ -936,7 +938,7 @@ function buildReport({ scenario, request }, evaluation) {
 ${reasons}
 
 说明：
-Gauntlet 在任何支付服务商调用发生前执行本地确定性检查。本报告不代表真实付款授权，也不验证商户身份。`;
+Gauntlet 使用本地 fixture 执行确定性策略测试，不会连接钱包或调用支付服务商。本报告不代表真实付款授权，也不验证商户身份。`;
 }
 
 async function copyReceipt() {
@@ -1006,8 +1008,8 @@ function decisionState(decision) {
 }
 
 function decisionLabel(decision) {
-  if (decision === "policy_failed") return "付款请求已拦截";
-  if (decision === "requires_review") return "等待人工确认";
+  if (decision === "policy_failed") return "违反当前策略";
+  if (decision === "requires_review") return "需要人工复核";
   return "符合当前策略";
 }
 
